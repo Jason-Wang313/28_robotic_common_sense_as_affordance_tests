@@ -89,5 +89,6 @@
 - Paper compiled successfully with direct `pdflatex`, `bibtex`, and final
   sequential `pdflatex` passes.
 - Final PDF copied to `C:/Users/wangz/Downloads/28.pdf`.
-- GitHub repository created as public; push status is recorded in
-  `child_status.md` and should be complete after the final commit/push step.
+- GitHub repository created as public and pushed successfully to `master`.
+- GitHub emitted a non-fatal warning that `results/episode_results.csv` is
+  74.23 MB, above the recommended 50 MB size but below the hard 100 MB limit.
