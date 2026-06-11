@@ -1,0 +1,22 @@
+{
+  "status": "complete",
+  "matrix_rows": 1000,
+  "serious_skim_rows": 300,
+  "deep_read_rows": 225,
+  "hostile_rows": 100,
+  "failures": [
+    "robot affordance learning manipulation page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "embodied common sense robotics page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "robot physical reasoning manipulation planning page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "language model robotics affordance planning page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "robot foundation model manipulation affordance page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "object affordances robotics page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "task and motion planning affordance robotics page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "robot commonsense reasoning manipulation page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "vision language model robotic manipulation affordance page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "causal affordance robot learning page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "interactive perception robot affordances page 1: HTTPError: HTTP Error 429: Too Many Requests",
+    "robot manipulation world model physical reasoning page 1: HTTPError: HTTP Error 429: Too Many Requests"
+  ],
+  "time": "2026-06-11 21:33:32"
+}

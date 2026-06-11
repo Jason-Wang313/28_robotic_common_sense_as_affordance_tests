@@ -1,0 +1,291 @@
+\documentclass{article}
+
+\usepackage{iclr2026_conference,times}
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+
+\title{Robotic Common Sense as Executable Affordance Tests}
+
+\author{Anonymous Authors}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Robotic ``common sense'' is often treated as a prior over plausible facts:
+mugs hold liquid, knives cut, boxes support objects.  That framing is fragile
+for embodied agents because the dangerous cases are precisely those in which a
+name or visual category remains familiar while the physical variables have
+changed: a mug has a hole, a knife is dull, a box is wet, or the robot gripper
+cannot apply the required force.  We propose Executable Affordance Test Logic
+(EATL), in which a common-sense affordance predicate is not a text fact, a
+static label, or a planner precondition, but a small robot-specific test program
+that returns a witness or failure certificate for a given object, action, robot,
+and task demand.  We give a simple lower bound showing that any label-only prior
+fails on label-preserving affordance flips, and we provide a runnable synthetic
+tabletop stress test covering containment, lifting, load support, cutting,
+wiping, and hot carrying.  In the flip regime, a name prior reaches 0.834
+accuracy with 0.134 unsafe false positives, while EATL reaches 0.972 accuracy
+with 0.022 unsafe false positives at mean test cost 0.095.  The evidence is not
+a real-robot result; it is an executable demonstration that the common field
+assumption--object names track physical affordances--is a mechanism-level
+failure point.
+\end{abstract}
+
+\section{Introduction}
+
+Embodied agents inherit a tempting shortcut from language: if the object is
+called a mug, use mug common sense.  This shortcut appears throughout robot
+systems that map language, object categories, or visual detections into
+affordance scores, skill choices, or planning preconditions.  It is also often
+useful.  A robot should not relearn from scratch that bowls usually contain
+liquid or that sponges usually wipe spills.
+
+The problem is that common sense for robots is not only about what is likely. It
+is about what is safe to do now.  A name can remain unchanged while the physical
+predicate changes: a cup-shaped sieve leaks, a mug has a hairline crack, a
+cardboard box collapses under a heavy object, a knife is decorative and dull, or
+a plastic tray deforms under heat.  These are not exotic philosophical cases.
+They are ordinary deployment failures caused by hidden state, materials, wear,
+counterfeits, task demand, and embodiment.
+
+This paper argues that robotic common sense should be operational rather than
+textual.  We define a common-sense affordance claim such as
+\texttt{can-contain-liquid(object, 200ml)} by the executable micro-experiment
+that would make it true for this robot: pour a safe probe volume, observe
+leakage and stability, and return a witness.  Similar tests can probe lift,
+support, cut, wipe, or carry-hot predicates.  The central object is therefore
+not a larger language model, a better dataset, or a verifier bolted onto a plan.
+It is a semantics for embodied common-sense predicates.
+
+Our contributions are:
+\begin{itemize}
+\item We formalize Executable Affordance Test Logic (EATL): affordance
+predicates are typed test programs over robot, object, action, demand, and
+observation.
+\item We prove a simple impossibility result for label-only common-sense priors
+under label-preserving affordance flips.
+\item We release a runnable synthetic stress test showing that the broken
+assumption matters under controlled physical mutations.
+\item We map the novelty boundary against affordance learning, task-and-motion
+planning, language-conditioned robotics, active sensing, and world models.
+\end{itemize}
+
+\section{Related Work and Novelty Boundary}
+
+\textbf{Affordances.}
+Affordances originate as action possibilities relative to an actor
+\citep{gibson1979ecological}; design work distinguishes perceived affordances
+and constraints \citep{norman1988psychology}.  Robotics has long treated
+affordances as relations among entities, actions, and effects
+\citep{sahin2007afford,montesano2008learning,stoytchev2005behavior}.
+Interactive object learning and object-action complexes similarly ground
+perception in action \citep{fitzpatrick2003learning,kruger2011object}.  These
+works make generic affordance prediction non-novel.  Our distinction is that an
+affordance predicate is accepted as robot common sense only when its executable
+test has a current witness.
+
+\textbf{Visual and learned affordance detection.}
+RGB-D activity models, part-based tool affordances, and deep affordance
+detectors predict likely functions from observations
+\citep{koppula2013learning,myers2015affordance,do2018affordancenet}. Knowledge
+representations encode object affordances for reasoning
+\citep{zhu2014reasoning}.  These methods can provide candidates or priors for
+EATL, but the proposed semantics rejects a prediction that lacks a
+task-demand-specific test witness.
+
+\textbf{Planning and feasibility.}
+Task-and-motion planning integrates symbolic choices with geometric or
+continuous feasibility checks
+\citep{kaelbling2011hierarchical,toussaint2015logic,garrett2020pddlstream}.
+This makes feasibility checking inside a planner non-novel.  EATL differs in
+scope: it defines embodied common-sense claims before plan execution and treats
+failure certificates as first-class outputs for hidden physical variables such
+as holes, porosity, dull edges, and load capacity.
+
+\textbf{Language-conditioned robotics.}
+Recent systems use language models, multimodal models, or robot foundation
+models to guide skill choice and manipulation
+\citep{ahn2022saycan,huang2022inner,liang2023code,huang2023voxposer,driess2023palme,brohan2022rt1,brohan2023rt2,openx2023,shridhar2022cliport}.
+Other work highlights that language models can struggle with planning
+\citep{huang2022zeroshot,valmeekam2023plan}.  Our hostile distribution
+decouples object names from causal affordance variables.  In that setting, text
+priors are the object of critique, not the mechanism.
+
+\textbf{Interactive perception, self-supervision, and world models.}
+Robots can learn by poking, grasping, or predicting future observations
+\citep{agrawal2016poke,pinto2016supersizing,ha2018world}.  EATL can use such
+models as implementations of tests.  The new claim is narrower: the meaning of
+a robot common-sense predicate is the executable evidence that certifies it for
+the current robot-object-demand tuple.
+
+\section{Executable Affordance Test Logic}
+
+Let $o$ be an object instance, $r$ a robot embodiment, $a$ a candidate action
+family, and $d$ a task demand such as volume, load, temperature, or required
+precision.  A conventional prior estimates $p(y \mid \ell, x)$ where $\ell$ is
+the object label and $x$ is a passive observation.  EATL instead attaches a test
+program to each predicate.
+
+\begin{definition}[Executable affordance test]
+An executable affordance test for predicate $\phi$ is a tuple
+$T_{\phi}=(\pi_{\phi}, g_{\phi}, c_{\phi})$.  The micro-policy $\pi_{\phi}$
+chooses a bounded diagnostic action for $(r,o,a,d)$, the observation function
+returns a trace $\tau$, and the guard $g_{\phi}(\tau)$ returns
+\textsc{pass}, \textsc{fail}, or \textsc{abstain}.  The scalar $c_{\phi}$ is
+the normalized test cost.
+\end{definition}
+
+\begin{definition}[EATL witness]
+The robot may assert $\phi(r,o,a,d)$ only if it has a witness
+$(T_{\phi},\tau)$ such that $g_{\phi}(\tau)=\textsc{pass}$ under the current
+robot, object, action, and demand.  If the guard returns \textsc{fail}, the
+trace is a failure certificate; if it returns \textsc{abstain}, the predicate is
+unavailable for safe planning.
+\end{definition}
+
+Examples are deliberately mundane.  \texttt{can-contain-liquid} is tested by a
+safe pour probe that observes leakage and stability.  \texttt{can-support-load}
+places a calibration load below the task demand.  \texttt{can-cut-soft-food}
+uses a low-force edge probe on a sacrificial material.  \texttt{can-wipe-spill}
+measures absorbed volume.  \texttt{can-carry-hot} tests heat resistance and
+handle availability.  These are not full task rollouts.  They are cheap
+pre-task experiments whose observations target the causal variables that a name
+or passive image may not expose.
+
+\section{A Simple Lower Bound}
+
+The formal point is intentionally small: if the only input is a label and the
+deployment process can preserve that label while flipping the affordance, no
+text prior can recover the hidden variable.
+
+\begin{proposition}[Label-only error under affordance flips]
+Fix an object label $\ell$ and binary affordance predicate $Y$.  Any classifier
+$h$ that depends only on $\ell$ has conditional error
+\[
+  \Pr[h(\ell)\neq Y \mid L=\ell] \geq \min(p_{\ell},1-p_{\ell}),
+\]
+where $p_{\ell}=\Pr[Y=1\mid L=\ell]$.  If a deployment distribution presents
+balanced same-label counterexamples, $p_{\ell}=1/2$, the error is at least
+$1/2$.  If an executable test observes sufficient evidence $S$ with guard
+$g(S)$ satisfying $\Pr[g(S)\neq Y]\leq \epsilon$, then the test-based predicate
+has error at most $\epsilon$ on non-abstaining trials.
+\end{proposition}
+
+\textit{Proof sketch.}
+For a fixed label, $h(\ell)$ is a constant.  If it predicts 1, its error is
+$1-p_{\ell}$; if it predicts 0, its error is $p_{\ell}$.  The best label-only
+choice therefore has error $\min(p_{\ell},1-p_{\ell})$.  The test claim follows
+directly from the assumed guard error.  The result does not say EATL tests are
+free or automatically available; it says the missing input channel is a real
+failure mode for label-only common sense.
+
+\section{Synthetic Stress Test}
+
+We implement a transparent tabletop world with ten named object categories:
+mug, bowl, sieve, knife, spoon, sponge, brick, cardboard box, plastic tray, and
+glass.  Each instance has hidden physical variables including concavity,
+porosity, holes, capacity, mass, friction, load capacity, sharpness, edge
+stiffness, absorbency, heat resistance, handles, stability, and flatness.
+Ground-truth affordances are deterministic functions of these variables and the
+task demand.
+
+We compare three mechanisms:
+\begin{itemize}
+\item \textbf{text\_prior}: a hand-coded name prior such as mugs contain liquid
+and knives cut.
+\item \textbf{vision\_proxy}: a passive geometry proxy that sees shape-like
+variables but misses hidden material, damage, and wear.
+\item \textbf{eatl}: executable tests that probe the task-specific causal
+variables with small independent observation noise.
+\end{itemize}
+
+The regimes are: typical objects with mild wear; label-preserving flips where
+names stay fixed while hidden physical variables change; label swaps where an
+object inherits another object's physical variables but keeps its name; and a
+mixed regime.  The run uses 1000 episodes and 180000 method-task rows.
+
+\begin{table}[t]
+\centering
+\small
+\input{results_table.tex}
+\caption{Runnable synthetic stress test.  Unsafe false positives are cases in
+which a method asserts an affordance that is false, e.g., approving a leaking
+container or overloaded support.}
+\label{tab:results}
+\end{table}
+
+Table~\ref{tab:results} shows the intended failure.  The text prior is
+reasonable on typical objects, but under label-preserving flips it has 0.134
+unsafe false positives.  The vision proxy has even higher unsafe false
+positives because visible geometry often remains plausible while material or
+damage state changes.  EATL reduces unsafe false positives to 0.022 by testing
+the deciding variable.  Its mean normalized test cost is 0.095, representing
+the overhead of the diagnostic micro-experiment.
+
+\section{Discussion}
+
+The result changes the central mechanism.  If common sense is a prior, then the
+natural repair is a larger model, more data, uncertainty, or a verifier.  If
+common sense is executable, the repair is different: define the predicate by
+the physical evidence that would make it true for this robot and this demand.
+That is why the proposed mechanism is not a new benchmark alone.  The hostile
+benchmark exists to expose the assumption, but the contribution is the
+operational semantics.
+
+EATL also changes how failures are represented.  A failed pour probe is not
+just a low confidence score; it is a certificate that the current object does
+not satisfy the containment predicate for the demanded volume.  This is useful
+for planners because the failure is local, typed, and reusable until the object
+state changes.
+
+\section{Limitations}
+
+This paper does not show real-robot performance.  The tests are hand-specified,
+the cost model is simplified, and the synthetic environment assumes the test
+observes sufficient causal variables with independent noise.  Some predicates
+may require destructive tests, long-horizon interaction, or specialized
+sensors.  Passive perception and large multimodal models can also solve many
+cases when the relevant variable is visible.  The claim is therefore not that
+EATL replaces perception, planning, or learned affordance models.  The claim is
+that an embodied common-sense assertion should be treated as unsupported until
+the robot has executable evidence for the current physical relation.
+
+\section{Conclusion}
+
+Robots fail when familiar words hide changed physics.  We proposed EATL, a
+semantics in which common-sense affordance predicates are certified by cheap
+robot-specific tests rather than inherited from text priors.  A simple lower
+bound shows why label-only priors cannot solve label-preserving affordance
+flips, and a runnable synthetic stress test demonstrates the safety effect on
+containment, lifting, support, cutting, wiping, and hot carrying.  The next step
+is to learn or synthesize test programs and evaluate them on real robot
+manipulation tasks with explicit test cost and failure risk.
+
+\subsubsection*{Reproducibility Statement}
+The repository contains the literature builder, synthetic environment, episode
+logs, summary CSV, and table-generation script.  The main experiment is
+reproduced with:
+\begin{verbatim}
+python experiments/affordance_tests.py
+python scripts/write_paper_assets.py
+\end{verbatim}
+The literature sweep is reproduced with \texttt{python scripts/build\_literature.py};
+OpenAlex rate limiting during this run was recovered using Crossref and arXiv
+metadata, as recorded in \texttt{data/literature\_progress.json}.
+
+\bibliography{references}
+\bibliographystyle{iclr2026_conference}
+
+\end{document}
