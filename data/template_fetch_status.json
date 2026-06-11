@@ -1,0 +1,14 @@
+{
+  "method": "https://github.com/ICLR/Master-Template/raw/master/iclr2026.zip",
+  "copied": [
+    "fancyhdr.sty",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "iclr2026_conference.tex",
+    "math_commands.tex",
+    "natbib.sty"
+  ],
+  "missing": [],
+  "failures": [],
+  "source": "ICLR/Master-Template official repository, iclr2026"
+}

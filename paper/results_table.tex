@@ -1,0 +1,21 @@
+\begin{tabular}{llrrrr}
+\toprule
+Regime & Method & Acc. & Unsafe FP & Avoidable FN & F1 \\
+\midrule
+typical & text\_prior & 0.917 & 0.029 & 0.054 & 0.871 \\
+typical & vision\_proxy & 0.850 & 0.142 & 0.007 & 0.813 \\
+typical & eatl & 0.980 & 0.014 & 0.006 & 0.971 \\
+\midrule
+label preserving flips & text\_prior & 0.834 & 0.134 & 0.033 & 0.680 \\
+label preserving flips & vision\_proxy & 0.787 & 0.207 & 0.006 & 0.656 \\
+label preserving flips & eatl & 0.972 & 0.022 & 0.007 & 0.934 \\
+\midrule
+label swap & text\_prior & 0.679 & 0.152 & 0.169 & 0.500 \\
+label swap & vision\_proxy & 0.840 & 0.150 & 0.010 & 0.800 \\
+label swap & eatl & 0.971 & 0.020 & 0.009 & 0.956 \\
+\midrule
+mixed & text\_prior & 0.797 & 0.113 & 0.089 & 0.668 \\
+mixed & vision\_proxy & 0.819 & 0.170 & 0.011 & 0.758 \\
+mixed & eatl & 0.956 & 0.031 & 0.013 & 0.928 \\
+\bottomrule
+\end{tabular}
