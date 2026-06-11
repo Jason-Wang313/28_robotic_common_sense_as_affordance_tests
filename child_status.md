@@ -67,3 +67,7 @@ Recovery steps:
 Next:
 - No required child-agent work remains. Orchestrator desktop copy status is
   pending orchestrator copy.
+
+Exit code: 0
+End time: 2026-06-11 21:47:28 +01:00
+PDF exists: True

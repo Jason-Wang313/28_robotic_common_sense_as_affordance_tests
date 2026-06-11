@@ -92,3 +92,9 @@
 - GitHub repository created as public and pushed successfully to `master`.
 - GitHub emitted a non-fatal warning that `results/episode_results.csv` is
   74.23 MB, above the recommended 50 MB size but below the hard 100 MB limit.
+
+## Orchestrator Desktop Copy
+
+Checked: 2026-06-11 21:47:32 +01:00
+Downloads PDF: C:/Users/wangz/Downloads/28.pdf
+Result: copy script exit 0 log C:\Users\wangz\robotics_60_paper_batch\logs\desktop_copy_28_20260611_214728.log
