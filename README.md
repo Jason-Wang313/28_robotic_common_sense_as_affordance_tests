@@ -2,6 +2,14 @@
 
 This repository contains the artifacts for Paper 28 in the robotics batch.
 
+## Hardening Status
+
+This is the v2 submission-hardened version. The added test-cost stress shows
+that EATL is justified only when diagnostic probes are cheap and safe enough:
+under label-preserving flips, the break-even test-harm weight against the text
+prior is 1.176, and at weight 1.25 EATL's safety-plus-test-cost is 0.141 versus
+0.134 for the text prior.
+
 ## Reproduce the Evidence
 
 ```powershell
@@ -13,9 +21,11 @@ Outputs:
 
 - `results/episode_results.csv`
 - `results/summary.csv`
+- `results/test_cost_stress.csv`
 - `results/README.md`
 - `figures/accuracy_by_regime.svg`
 - `paper/results_table.tex`
+- `paper/test_cost_stress_table.tex`
 
 ## Reproduce the Literature Artifacts
 
@@ -41,14 +51,11 @@ no fallback-expanded rows.
 
 ```powershell
 python scripts/fetch_iclr_template.py
-cd paper
-pdflatex -interaction=nonstopmode -halt-on-error main.tex
-bibtex main
-pdflatex -interaction=nonstopmode -halt-on-error main.tex
-pdflatex -interaction=nonstopmode -halt-on-error main.tex
+powershell -ExecutionPolicy Bypass -File scripts/build_pdf.ps1
 ```
 
-The required final PDF path for the batch is `C:/Users/wangz/Downloads/28.pdf`.
+The build script copies the final PDF to `C:/Users/wangz/Downloads/28.pdf` and
+removes the transient local `paper/main.pdf`.
 
 ## Dependencies
 

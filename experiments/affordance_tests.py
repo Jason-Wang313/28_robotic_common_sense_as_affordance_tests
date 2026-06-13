@@ -275,6 +275,38 @@ def write_csv(path: Path, rows: List[dict]) -> None:
         writer.writerows(rows)
 
 
+def test_cost_stress(summary: List[dict]) -> List[dict]:
+    """Measure when diagnostic testing stops being the safer default."""
+    lookup = {(row["regime"], row["method"]): row for row in summary}
+    regimes = ["typical", "label_preserving_flips", "label_swap", "mixed"]
+    rows = []
+    for regime in regimes:
+        text = lookup[(regime, "text_prior")]
+        eatl = lookup[(regime, "eatl")]
+        text_unsafe = float(text["unsafe_false_positive_rate"])
+        eatl_unsafe = float(eatl["unsafe_false_positive_rate"])
+        eatl_cost = float(eatl["mean_test_cost"])
+        if eatl_cost > 0:
+            break_even = (text_unsafe - eatl_unsafe) / eatl_cost
+        else:
+            break_even = math.inf
+        stress_weight = 1.25
+        rows.append(
+            {
+                "regime": regime,
+                "text_unsafe_false_positive_rate": text_unsafe,
+                "eatl_unsafe_false_positive_rate": eatl_unsafe,
+                "eatl_mean_test_cost": eatl_cost,
+                "break_even_test_harm_weight": break_even,
+                "stress_test_harm_weight": stress_weight,
+                "text_safety_cost_at_stress": text_unsafe,
+                "eatl_safety_cost_at_stress": eatl_unsafe + stress_weight * eatl_cost,
+                "eatl_wins_at_stress": int(eatl_unsafe + stress_weight * eatl_cost < text_unsafe),
+            }
+        )
+    return rows
+
+
 def write_svg(summary: List[dict]) -> None:
     # Minimal dependency-free grouped bar chart.
     regimes = ["typical", "label_preserving_flips", "label_swap", "mixed"]
@@ -316,10 +348,14 @@ def write_svg(summary: List[dict]) -> None:
     (FIGS / "accuracy_by_regime.svg").write_text("\n".join(parts), encoding="utf-8")
 
 
-def write_readme(summary: List[dict]) -> None:
+def write_readme(summary: List[dict], stress: List[dict]) -> None:
     rows = "\n".join(
         f"| {r['regime']} | {r['method']} | {r['accuracy']:.3f} | {r['unsafe_false_positive_rate']:.3f} | {r['avoidable_false_negative_rate']:.3f} | {r['f1']:.3f} | {r['mean_test_cost']:.3f} |"
         for r in summary
+    )
+    stress_rows = "\n".join(
+        f"| {r['regime']} | {r['text_unsafe_false_positive_rate']:.3f} | {r['eatl_unsafe_false_positive_rate']:.3f} | {r['eatl_mean_test_cost']:.3f} | {r['break_even_test_harm_weight']:.3f} | {r['eatl_safety_cost_at_stress']:.3f} |"
+        for r in stress
     )
     (OUT / "README.md").write_text(
         f"""# Affordance-Test Experiment Results
@@ -338,6 +374,16 @@ The important stress regime is `label_preserving_flips`: the object name is
 unchanged, but hidden properties such as holes, porosity, dullness, load
 capacity, heat resistance, and slipperiness are changed. A name-only prior has
 no input channel for those variables, while EATL obtains them through tests.
+
+## V2 Test-Cost Stress
+
+The v2 stress computes `unsafe_false_positive_rate + lambda * mean_test_cost`.
+The break-even lambda is the normalized test-harm weight where EATL and the text
+prior have the same safety-plus-test-cost.
+
+| Regime | Text Unsafe FP | EATL Unsafe FP | EATL Test Cost | Break-even Lambda | EATL Cost at Lambda 1.25 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+{stress_rows}
 """,
         encoding="utf-8",
     )
@@ -359,11 +405,13 @@ def main() -> int:
             rows.extend(run_episode(rng, regime, noise_by_regime[regime], episode))
             episode += 1
     summary = summarize(rows)
+    stress = test_cost_stress(summary)
     write_csv(OUT / "episode_results.csv", rows)
     write_csv(OUT / "summary.csv", summary)
+    write_csv(OUT / "test_cost_stress.csv", stress)
     write_svg(summary)
-    write_readme(summary)
-    print(json.dumps({"episodes": episode, "rows": len(rows), "summary": summary}, indent=2))
+    write_readme(summary, stress)
+    print(json.dumps({"episodes": episode, "rows": len(rows), "summary": summary, "test_cost_stress": stress}, indent=2))
     return 0
 
 

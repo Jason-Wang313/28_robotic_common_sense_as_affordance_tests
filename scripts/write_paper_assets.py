@@ -15,7 +15,7 @@ def fmt(x: str) -> str:
     return f"{float(x):.3f}"
 
 
-def main() -> int:
+def write_results_table() -> None:
     rows = []
     with (ROOT / "results" / "summary.csv").open("r", encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
@@ -48,7 +48,38 @@ def main() -> int:
         last = row["regime"]
     lines.extend(["\\bottomrule", "\\end{tabular}"])
     (PAPER / "results_table.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print("wrote paper/results_table.tex")
+
+
+def write_test_cost_table() -> None:
+    rows = []
+    path = ROOT / "results" / "test_cost_stress.csv"
+    if not path.exists():
+        return
+    with path.open("r", encoding="utf-8", newline="") as f:
+        rows.extend(csv.DictReader(f))
+    order = {"typical": 0, "label_preserving_flips": 1, "label_swap": 2, "mixed": 3}
+    rows.sort(key=lambda r: order[r["regime"]])
+    lines = [
+        "\\begin{tabular}{lrrrrr}",
+        "\\toprule",
+        "Regime & Text unsafe & EATL unsafe & Test cost & Break-even $\\lambda$ & EATL cost @1.25 \\\\",
+        "\\midrule",
+    ]
+    for row in rows:
+        regime = row["regime"].replace("_", " ")
+        lines.append(
+            f"{regime} & {fmt(row['text_unsafe_false_positive_rate'])} & "
+            f"{fmt(row['eatl_unsafe_false_positive_rate'])} & {fmt(row['eatl_mean_test_cost'])} & "
+            f"{fmt(row['break_even_test_harm_weight'])} & {fmt(row['eatl_safety_cost_at_stress'])} \\\\"
+        )
+    lines.extend(["\\bottomrule", "\\end{tabular}"])
+    (PAPER / "test_cost_stress_table.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    write_results_table()
+    write_test_cost_table()
+    print("wrote paper tables")
     return 0
 
 

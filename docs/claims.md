@@ -18,6 +18,9 @@
 3. The benefit is largest when the visual/name taxonomy is held fixed while
    hidden variables such as holes, porosity, dullness, load capacity, heat
    resistance, and slipperiness change.
+4. The v2 test-cost stress shows EATL is conditional on cheap/safe probes:
+   under label-preserving flips the break-even test-harm weight is 1.176, and
+   at weight 1.25 EATL loses to the text prior on safety-plus-test-cost.
 
 ## Honest Unsupported or Partially Supported Claims
 1. Real-robot performance is not demonstrated in this run.
@@ -27,3 +30,5 @@
    that observe sufficient causal variables.
 5. The literature sweep is broad and hostile, but most entries are abstract and
    metadata skims, not full PDF readings.
+6. V2 does not solve test selection; it only quantifies when test harm can erase
+   the safety advantage.

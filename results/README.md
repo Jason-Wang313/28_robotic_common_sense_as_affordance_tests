@@ -25,3 +25,16 @@ The important stress regime is `label_preserving_flips`: the object name is
 unchanged, but hidden properties such as holes, porosity, dullness, load
 capacity, heat resistance, and slipperiness are changed. A name-only prior has
 no input channel for those variables, while EATL obtains them through tests.
+
+## V2 Test-Cost Stress
+
+The v2 stress computes `unsafe_false_positive_rate + lambda * mean_test_cost`.
+The break-even lambda is the normalized test-harm weight where EATL and the text
+prior have the same safety-plus-test-cost.
+
+| Regime | Text Unsafe FP | EATL Unsafe FP | EATL Test Cost | Break-even Lambda | EATL Cost at Lambda 1.25 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| typical | 0.029 | 0.014 | 0.095 | 0.154 | 0.133 |
+| label_preserving_flips | 0.134 | 0.022 | 0.095 | 1.176 | 0.141 |
+| label_swap | 0.152 | 0.020 | 0.095 | 1.385 | 0.139 |
+| mixed | 0.113 | 0.031 | 0.095 | 0.872 | 0.149 |
