@@ -40,3 +40,9 @@ work.
 Response: it is deliberately simple: the goal is to make the broken assumption
 unavoidable. If the only input is a label and labels are decoupled from
 affordance, no amount of text prior can recover hidden causal state.
+
+## Attack 9: The tests themselves can be costly or damaging.
+Response: agreed. The v2 stress computes unsafe false positives plus normalized
+test harm. Under label-preserving flips, EATL breaks even with the text prior at
+test-harm weight 1.176 and loses at weight 1.25. The paper now claims EATL only
+for probes that are cheap/safe relative to the prevented task failure.

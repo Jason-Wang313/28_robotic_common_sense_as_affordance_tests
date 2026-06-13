@@ -22,6 +22,14 @@
 
 \maketitle
 
+\paragraph{Submission-hardening version: v2.}
+This revision adds a test-cost stress. EATL is not a free safety theorem: in
+the label-preserving flip regime, the break-even normalized test-harm weight
+against the text prior is 1.176, and at weight 1.25 EATL's safety-plus-test-cost
+score is 0.141 versus 0.134 for the text prior. The supported claim is therefore
+that executable tests are useful when diagnostic probes are cheap and safe
+relative to the task failure they prevent.
+
 \begin{abstract}
 Robotic ``common sense'' is often treated as a prior over plausible facts:
 mugs hold liquid, knives cut, boxes support objects.  That framing is fragile
@@ -40,7 +48,9 @@ accuracy with 0.134 unsafe false positives, while EATL reaches 0.972 accuracy
 with 0.022 unsafe false positives at mean test cost 0.095.  The evidence is not
 a real-robot result; it is an executable demonstration that the common field
 assumption--object names track physical affordances--is a mechanism-level
-failure point.
+failure point.  A v2 stress test shows the boundary: if diagnostic probes have
+normalized harm weight 1.25, EATL no longer beats the text prior on
+safety-plus-test-cost in the label-preserving flip regime.
 \end{abstract}
 
 \section{Introduction}
@@ -234,6 +244,32 @@ damage state changes.  EATL reduces unsafe false positives to 0.022 by testing
 the deciding variable.  Its mean normalized test cost is 0.095, representing
 the overhead of the diagnostic micro-experiment.
 
+\paragraph{V2 test-cost stress.}
+The main table assumes that the diagnostic probe is cheap and harmless relative
+to the task failure.  To attack that assumption, we compute a safety-plus-test
+cost
+\[
+  J_{\lambda}=\textrm{unsafe false positive rate}+\lambda\cdot
+  \textrm{mean test cost},
+\]
+where $\lambda$ is a normalized harm weight for running the test itself.
+Table~\ref{tab:test-cost} reports the break-even $\lambda$ at which EATL and the
+text prior have the same $J_{\lambda}$.  In the label-preserving flip regime,
+the break-even value is 1.176.  At $\lambda=1.25$, EATL's cost is 0.141 and the
+text prior's cost is 0.134.  Thus EATL should not be interpreted as ``always
+test.'' It is justified when the probe is cheap, safe, or reserved for regimes
+where hidden physical flips are likely enough to pay for the diagnostic action.
+
+\begin{table}[t]
+\centering
+\small
+\input{test_cost_stress_table.tex}
+\caption{V2 test-cost stress.  Break-even $\lambda$ is the normalized probe-harm
+weight where EATL's unsafe false positives plus test cost match the text prior's
+unsafe false positives.}
+\label{tab:test-cost}
+\end{table}
+
 \section{Discussion}
 
 The result changes the central mechanism.  If common sense is a prior, then the
@@ -256,11 +292,15 @@ This paper does not show real-robot performance.  The tests are hand-specified,
 the cost model is simplified, and the synthetic environment assumes the test
 observes sufficient causal variables with independent noise.  Some predicates
 may require destructive tests, long-horizon interaction, or specialized
-sensors.  Passive perception and large multimodal models can also solve many
-cases when the relevant variable is visible.  The claim is therefore not that
-EATL replaces perception, planning, or learned affordance models.  The claim is
-that an embodied common-sense assertion should be treated as unsupported until
-the robot has executable evidence for the current physical relation.
+sensors.  The v2 stress makes this limitation measurable: if the diagnostic
+action itself is risky enough, testing can lose on safety-plus-cost even when it
+reduces unsafe false positives.  Passive perception and large multimodal models
+can also solve many cases when the relevant variable is visible.  The claim is
+therefore not that EATL replaces perception, planning, or learned affordance
+models.  The claim is that an embodied common-sense assertion should be treated
+as unsupported until the robot has executable evidence for the current physical
+relation, provided that the evidence can be obtained safely enough for the task
+context.
 
 \section{Conclusion}
 
@@ -281,6 +321,7 @@ reproduced with:
 python experiments/affordance_tests.py
 python scripts/write_paper_assets.py
 \end{verbatim}
+The v2 stress table is generated from \texttt{results/test\_cost\_stress.csv}.
 The literature sweep is reproduced with \texttt{python scripts/build\_literature.py};
 OpenAlex rate limiting during this run was recovered using Crossref and arXiv
 metadata, as recorded in \texttt{data/literature\_progress.json}.

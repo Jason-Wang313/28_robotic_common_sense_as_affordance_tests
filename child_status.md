@@ -1,73 +1,38 @@
-Current stage: complete
+# Child Status: Paper 28
 
-Exact commands/actions so far:
-- Created plan.md with apply_patch as the first folder action.
-- Created and maintained child_status.md.
-- Ran safe probes for repo/tool availability.
-- Added scripts/build_literature.py and experiments/affordance_tests.py.
-- Ran python scripts/build_literature.py with 300000 ms timeout.
-- Patched literature collector after OpenAlex HTTP 429 to add Crossref/arXiv
-  source adapters and ignore fallback-expanded cache rows.
-- Reran python scripts/build_literature.py with 300000 ms timeout.
-- Checked docs/related_work_matrix.csv for fallback-expanded rows:
-  fallback_matches=0.
-- Ran python experiments/affordance_tests.py with 300000 ms timeout.
-- Patched experiment witness construction after KeyError and reran.
-- Added scripts/fetch_iclr_template.py.
-- Ran python scripts/fetch_iclr_template.py; fetched official ICLR 2026 files
-  from https://github.com/ICLR/Master-Template/raw/master/iclr2026.zip.
-- Added scripts/write_paper_assets.py and ran it.
-- Wrote README.md, paper/main.tex, paper/references.bib, and docs/final_audit.md.
-- Built paper with:
-  - pdflatex -interaction=nonstopmode -halt-on-error main.tex
-  - bibtex main
-  - pdflatex -interaction=nonstopmode -halt-on-error main.tex
-  - pdflatex -interaction=nonstopmode -halt-on-error main.tex
-  - one extra final sequential pdflatex pass after noticing two passes had
-    overlapped.
-- Copied paper/main.pdf to C:/Users/wangz/Downloads/28.pdf.
-- Ran gh auth status.
-- Ran gh repo create 28_robotic_common_sense_as_affordance_tests --public
-  --source=. --remote=origin.
-- Ran git add ., git commit -m "Produce paper 28 affordance-test artifacts",
-  and git push -u origin master.
+Stage: complete; v2 submission hardening ready to commit and push
 
-Findings:
-- Literature artifacts generated:
-  - docs/related_work_matrix.csv: 1000 rows.
-  - docs/literature_map.md: includes field box, 300 skim, 225 deep read,
-    hidden assumptions, and directions.
-  - docs/hostile_prior_work.md: 100 hostile prior works.
-  - docs/novelty_boundary_map.md, docs/novelty_decision.md, docs/claims.md,
-    docs/reviewer_attacks.md, docs/final_audit.md.
-- OpenAlex returned HTTP 429 on all initial queries; Crossref/arXiv filled the
-  real metadata sweep.
-- Experiment generated 1000 episodes and 180000 method-task rows.
-- Key result under label_preserving_flips:
-  - EATL accuracy 0.9715; unsafe FP rate 0.0218.
-  - text_prior accuracy 0.8337; unsafe FP rate 0.1335.
-  - vision_proxy accuracy 0.7867; unsafe FP rate 0.2073.
-- Final PDF exists at C:/Users/wangz/Downloads/28.pdf.
-- Public GitHub URL:
-  https://github.com/Jason-Wang313/28_robotic_common_sense_as_affordance_tests
+Current facts:
+- Literature sweep completed with `docs/related_work_matrix.csv` containing 1000 rows and `docs/hostile_prior_work.md` containing 100 hostile priors.
+- Main experiment generated 1000 episodes and 180000 method-task rows.
+- Main label-preserving flip result: EATL accuracy 0.9715 and unsafe false-positive rate 0.0218 versus text-prior accuracy 0.8337 and unsafe false-positive rate 0.1335.
+- V2 test-cost stress generated `results/test_cost_stress.csv` and `paper/test_cost_stress_table.tex`.
+- V2 stress result: under label-preserving flips, EATL breaks even with the text prior at normalized test-harm weight 1.176 and loses at weight 1.25 on safety-plus-test-cost.
+- Paper generated at `paper/main.tex` with visible v2 note, stress table, narrowed abstract, and narrowed limitations.
+- LaTeX build completed with `scripts/build_pdf.ps1`.
+- Final PDF copied to `C:/Users/wangz/Downloads/28.pdf`.
+- Transient `paper/main.pdf` removed so the final PDF exists only at the required Downloads path.
+- Checked Desktop paths contain no `28.pdf`.
+- Public GitHub repo exists: `https://github.com/Jason-Wang313/28_robotic_common_sense_as_affordance_tests`.
+- `docs/final_audit.md` exists and reports build status, v2 stress evidence, Downloads-only artifact status, Desktop absence, and local PDF absence.
 
-Failures:
-- OpenAlex rate limiting: recovered via Crossref/arXiv.
-- Experiment first run failed with KeyError: recovered by patching witness code.
-- Two pdflatex passes were accidentally launched in parallel; recovered by
-  running one final sequential pass.
-- GitHub push emitted a non-fatal large-file warning for
-  results/episode_results.csv: 74.23 MB exceeds recommended 50 MB but is below
-  hard 100 MB limit.
+Commands run:
+- `python experiments\affordance_tests.py`
+- `python scripts\write_paper_assets.py`
+- `powershell -ExecutionPolicy Bypass -File scripts\build_pdf.ps1`
+- Safe probes for build status, Downloads PDF, Desktop absence, local PDF absence, LaTeX log status, and generated stress outputs.
 
-Recovery steps:
-- Non-fatal wrappers recorded failures and allowed patch/rerun.
-- Final audit records the synthetic-evidence limitation and GitHub warning.
+Historical failures:
+- OpenAlex returned HTTP 429 during the original literature run; Crossref/arXiv fallback recovered the matrix.
+- Original experiment first run failed with `KeyError`; witness construction was patched before v1.
+- Original build had overlapping pdflatex passes; recovered with a final sequential pass.
+- Initial GitHub push emitted a non-fatal large-file warning for `results/episode_results.csv` because it is 74.23 MB.
+
+Recovery / hardening steps:
+- Added v2 test-cost stress and narrowed the EATL claim to cheap/safe, task-justified probes.
+- Added standard hardening docs: attack log, version log, hostile reviewer response, rigor checklist, reproducibility checklist, and readiness decision.
+- Added `scripts/build_pdf.ps1` and `.gitignore` rule for `paper/main.pdf`.
+- Rebuilt the canonical PDF and removed the tracked local PDF.
 
 Next:
-- No required child-agent work remains. Orchestrator desktop copy status is
-  pending orchestrator copy.
-
-Exit code: 0
-End time: 2026-06-11 21:47:28 +01:00
-PDF exists: True
+- Commit and push the v2 hardening update.
