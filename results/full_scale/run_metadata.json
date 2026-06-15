@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "version": "v3_full_scale",
+  "elapsed_seconds": 3325.005846977234,
+  "main_cases": 768000,
+  "main_method_decisions": 7680000,
+  "families": [
+    "A_main",
+    "B_phase",
+    "C_selector_ablation",
+    "D_cache_validity",
+    "E_noise_bias",
+    "F_visibility",
+    "G_demand_embodiment",
+    "H_failure_gallery"
+  ],
+  "regimes": [
+    "typical",
+    "label_preserving_flips",
+    "label_swap",
+    "mixed",
+    "adversarial_counterfeit",
+    "degraded_worn",
+    "task_demand_shift",
+    "embodiment_shift"
+  ],
+  "tasks": [
+    "contain_liquid",
+    "lift",
+    "support_load",
+    "cut_soft_food",
+    "wipe_spill",
+    "carry_hot",
+    "pour_without_spill",
+    "stack_safely",
+    "push_without_sliding",
+    "grasp_without_crushing"
+  ],
+  "methods": [
+    "text_prior",
+    "calibrated_text_prior",
+    "passive_vision_proxy",
+    "uncertainty_vision_proxy",
+    "conservative_prior",
+    "eager_eatl",
+    "risk_aware_eatl",
+    "cached_eatl",
+    "oracle_hidden_state",
+    "random_test_control"
+  ],
+  "object_count": 20,
+  "ram_light": true
+}

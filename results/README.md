@@ -1,40 +1,58 @@
 # Affordance-Test Experiment Results
 
-The experiment compares three mechanisms:
+This directory contains both the historical v2 compact outputs and the v3
+full-scale outputs.
+
+## v3 Full-Scale Results
+
+The final manuscript uses `results/full_scale/`.
+
+Reproduce:
+
+```powershell
+python experiments/full_scale_affordance_tests.py
+python scripts/render_full_scale_figures.py
+python scripts/write_full_scale_appendix_tables.py
+```
+
+Summary:
+
+- Main benchmark: 192,000 robot-object-task cases.
+- Main method decisions: 1,920,000.
+- Aggregate method decisions across all families: 4,977,600.
+- Main label-preserving flips: text prior unsafe FP 0.188, eager EATL 0.022,
+  risk-aware EATL 0.015.
+- Main adversarial counterfeits: text prior unsafe FP 0.197, passive vision
+  0.240, risk-aware EATL 0.025.
+
+Primary files:
+
+- `full_scale/main_summary.csv`
+- `full_scale/main_task_summary.csv`
+- `full_scale/phase_summary.csv`
+- `full_scale/phase_boundary.csv`
+- `full_scale/selector_ablation_summary.csv`
+- `full_scale/cache_validity_summary.csv`
+- `full_scale/noise_guard_summary.csv`
+- `full_scale/visibility_summary.csv`
+- `full_scale/demand_embodiment_summary.csv`
+- `full_scale/failure_gallery.csv`
+- `full_scale/run_metadata.json`
+
+## Historical v2 Results
+
+The v2 compact experiment compared:
 
 - `text_prior`: predicts affordances from the object label.
 - `vision_proxy`: sees geometry-like variables but not hidden material/damage.
-- `eatl`: runs executable affordance tests that probe task-specific causal variables.
+- `eatl`: runs executable affordance tests that probe task-specific causal
+  variables.
 
-| Regime | Method | Accuracy | Unsafe FP Rate | Avoidable FN Rate | F1 | Mean Test Cost |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| label_preserving_flips | eatl | 0.972 | 0.022 | 0.007 | 0.934 | 0.095 |
-| label_preserving_flips | text_prior | 0.834 | 0.134 | 0.033 | 0.680 | 0.000 |
-| label_preserving_flips | vision_proxy | 0.787 | 0.207 | 0.006 | 0.656 | 0.000 |
-| label_swap | eatl | 0.971 | 0.020 | 0.009 | 0.956 | 0.095 |
-| label_swap | text_prior | 0.679 | 0.152 | 0.169 | 0.500 | 0.000 |
-| label_swap | vision_proxy | 0.840 | 0.150 | 0.010 | 0.800 | 0.000 |
-| mixed | eatl | 0.956 | 0.031 | 0.013 | 0.928 | 0.095 |
-| mixed | text_prior | 0.797 | 0.113 | 0.089 | 0.668 | 0.000 |
-| mixed | vision_proxy | 0.819 | 0.170 | 0.011 | 0.758 | 0.000 |
-| typical | eatl | 0.980 | 0.014 | 0.006 | 0.971 | 0.095 |
-| typical | text_prior | 0.917 | 0.029 | 0.054 | 0.871 | 0.000 |
-| typical | vision_proxy | 0.850 | 0.142 | 0.007 | 0.813 | 0.000 |
+Historical files:
 
-The important stress regime is `label_preserving_flips`: the object name is
-unchanged, but hidden properties such as holes, porosity, dullness, load
-capacity, heat resistance, and slipperiness are changed. A name-only prior has
-no input channel for those variables, while EATL obtains them through tests.
+- `episode_results.csv`
+- `summary.csv`
+- `test_cost_stress.csv`
 
-## V2 Test-Cost Stress
-
-The v2 stress computes `unsafe_false_positive_rate + lambda * mean_test_cost`.
-The break-even lambda is the normalized test-harm weight where EATL and the text
-prior have the same safety-plus-test-cost.
-
-| Regime | Text Unsafe FP | EATL Unsafe FP | EATL Test Cost | Break-even Lambda | EATL Cost at Lambda 1.25 |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| typical | 0.029 | 0.014 | 0.095 | 0.154 | 0.133 |
-| label_preserving_flips | 0.134 | 0.022 | 0.095 | 1.176 | 0.141 |
-| label_swap | 0.152 | 0.020 | 0.095 | 1.385 | 0.139 |
-| mixed | 0.113 | 0.031 | 0.095 | 0.872 | 0.149 |
+The v2 stress computed `unsafe_false_positive_rate + lambda * mean_test_cost`.
+Under label-preserving flips, the v2 break-even test-harm weight was 1.176.

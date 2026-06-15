@@ -1,0 +1,24 @@
+\begin{tabular}{lllllp{0.35\linewidth}}
+\toprule
+Kind & Regime & Object & Task & Method & Witness \\
+\midrule
+abstention & typical & mug & contain\_liquid & conservative\_prior & conservative\_prior(abstain) \\
+saved\_test\_correct & typical & mug & support\_load & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.06) \\
+saved\_test\_correct & typical & mug & wipe\_spill & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.06) \\
+unsafe\_false\_positive & typical & mug & wipe\_spill & random\_test\_control & irrelevant\_random\_probe \\
+abstention & typical & mug & carry\_hot & conservative\_prior & conservative\_prior(abstain) \\
+avoidable\_false\_negative & typical & mug & carry\_hot & random\_test\_control & irrelevant\_random\_probe \\
+abstention & typical & mug & pour\_without\_spill & conservative\_prior & conservative\_prior(abstain) \\
+saved\_test\_correct & typical & mug & stack\_safely & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.16) \\
+abstention & typical & mug & grasp\_without\_crushing & conservative\_prior & conservative\_prior(abstain) \\
+avoidable\_false\_negative & typical & mug & grasp\_without\_crushing & random\_test\_control & irrelevant\_random\_probe \\
+abstention & typical & bowl & contain\_liquid & conservative\_prior & conservative\_prior(abstain) \\
+avoidable\_false\_negative & typical & bowl & contain\_liquid & random\_test\_control & irrelevant\_random\_probe \\
+unsafe\_false\_positive & typical & bowl & support\_load & random\_test\_control & irrelevant\_random\_probe \\
+saved\_test\_correct & typical & bowl & cut\_soft\_food & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.16) \\
+saved\_test\_correct & typical & bowl & wipe\_spill & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.06) \\
+unsafe\_false\_positive & typical & bowl & wipe\_spill & random\_test\_control & irrelevant\_random\_probe \\
+saved\_test\_correct & typical & bowl & carry\_hot & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.15) \\
+saved\_test\_correct & typical & bowl & pour\_without\_spill & risk\_aware\_eatl & risk\_aware\_eatl(reject,p=0.16) \\
+\bottomrule
+\end{tabular}

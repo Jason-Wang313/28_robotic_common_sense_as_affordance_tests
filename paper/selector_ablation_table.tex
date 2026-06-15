@@ -1,0 +1,20 @@
+\begin{tabular}{llrrrrr}
+\toprule
+regime & Method & Acc. & Unsafe FP & Abstain & Test cost & Total cost \\
+\midrule
+adversarial\_counterfeit & cheapest\_test\_selector & 0.891 & 0.104 & 0.000 & 0.013 & 0.531 \\
+adversarial\_counterfeit & eager\_eatl & 0.959 & 0.036 & 0.000 & 0.102 & 0.259 \\
+adversarial\_counterfeit & random\_test\_control & 0.500 & 0.434 & 0.000 & 0.066 & 2.257 \\
+adversarial\_counterfeit & risk\_aware\_eatl & 0.969 & 0.026 & 0.000 & 0.078 & 0.191 \\
+adversarial\_counterfeit & risk\_no\_abstention & 0.969 & 0.026 & 0.000 & 0.078 & 0.191 \\
+adversarial\_counterfeit & risk\_no\_failure\_harm & 0.969 & 0.026 & 0.000 & 0.078 & 0.194 \\
+adversarial\_counterfeit & risk\_no\_test\_harm & 0.966 & 0.028 & 0.000 & 0.078 & 0.200 \\
+label\_preserving\_flips & cheapest\_test\_selector & 0.905 & 0.091 & 0.000 & 0.013 & 0.469 \\
+label\_preserving\_flips & eager\_eatl & 0.974 & 0.022 & 0.000 & 0.102 & 0.187 \\
+label\_preserving\_flips & random\_test\_control & 0.498 & 0.432 & 0.000 & 0.066 & 2.254 \\
+label\_preserving\_flips & risk\_aware\_eatl & 0.983 & 0.013 & 0.000 & 0.070 & 0.122 \\
+label\_preserving\_flips & risk\_no\_abstention & 0.983 & 0.014 & 0.000 & 0.070 & 0.125 \\
+label\_preserving\_flips & risk\_no\_failure\_harm & 0.981 & 0.015 & 0.000 & 0.070 & 0.130 \\
+label\_preserving\_flips & risk\_no\_test\_harm & 0.982 & 0.014 & 0.000 & 0.070 & 0.125 \\
+\bottomrule
+\end{tabular}

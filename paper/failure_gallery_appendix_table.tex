@@ -1,0 +1,71 @@
+\begin{longtable}{@{}p{0.08\linewidth}p{0.09\linewidth}p{0.08\linewidth}p{0.09\linewidth}p{0.10\linewidth}p{0.25\linewidth}@{}}
+\toprule
+Kind & Regime & Object & Task & Method & Witness \\
+\midrule
+\endfirsthead
+\toprule
+Kind & Regime & Object & Task & Method & Witness \\
+\midrule
+\endhead
+abstention & typical & mug & contain liquid & conservative prior & conservative prior(abstain) \\
+saved test correct & typical & mug & support load & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+saved test correct & typical & mug & cut soft food & risk aware eatl & risk aware eatl(reject,p=0.17) \\
+unsafe false positive & typical & mug & cut soft food & random test control & irrelevant random probe \\
+saved test correct & typical & mug & wipe spill & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & mug & wipe spill & cached eatl & absorb probe(spill=60, absorbency=5) \\
+unsafe false positive & typical & mug & wipe spill & random test control & irrelevant random probe \\
+abstention & typical & mug & carry hot & conservative prior & conservative prior(abstain) \\
+avoidable false negative & typical & mug & carry hot & random test control & irrelevant random probe \\
+abstention & typical & mug & pour without spill & conservative prior & conservative prior(abstain) \\
+saved test correct & typical & mug & stack safely & risk aware eatl & risk aware eatl(reject,p=0.17) \\
+unsafe false positive & typical & mug & stack safely & random test control & irrelevant random probe \\
+abstention & typical & mug & grasp without crushing & conservative prior & conservative prior(abstain) \\
+avoidable false negative & typical & mug & grasp without crushing & random test control & irrelevant random probe \\
+abstention & typical & bowl & contain liquid & conservative prior & conservative prior(abstain) \\
+saved test correct & typical & bowl & support load & risk aware eatl & risk aware eatl(reject,p=0.18) \\
+saved test correct & typical & bowl & cut soft food & risk aware eatl & risk aware eatl(reject,p=0.18) \\
+saved test correct & typical & bowl & wipe spill & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & bowl & wipe spill & random test control & irrelevant random probe \\
+saved test correct & typical & bowl & carry hot & risk aware eatl & risk aware eatl(reject,p=0.15) \\
+unsafe false positive & typical & bowl & carry hot & random test control & irrelevant random probe \\
+saved test correct & typical & bowl & pour without spill & risk aware eatl & risk aware eatl(reject,p=0.14) \\
+saved test correct & typical & bowl & stack safely & risk aware eatl & risk aware eatl(reject,p=0.15) \\
+unsafe false positive & typical & bowl & stack safely & random test control & irrelevant random probe \\
+avoidable false negative & typical & bowl & push without sliding & random test control & irrelevant random probe \\
+abstention & typical & bowl & grasp without crushing & conservative prior & conservative prior(abstain) \\
+avoidable false negative & typical & bowl & grasp without crushing & random test control & irrelevant random probe \\
+unsafe false positive & typical & sieve & contain liquid & passive vision proxy & passive vision proxy(p=0.85) \\
+abstention & typical & sieve & contain liquid & uncertainty vision proxy & uncertainty vision proxy(abstain,p=0.46) \\
+avoidable false negative & typical & sieve & lift & random test control & irrelevant random probe \\
+saved test correct & typical & sieve & support load & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & sieve & support load & random test control & irrelevant random probe \\
+unsafe false positive & typical & sieve & wipe spill & passive vision proxy & passive vision proxy(p=0.77) \\
+abstention & typical & sieve & wipe spill & uncertainty vision proxy & uncertainty vision proxy(abstain,p=0.43) \\
+unsafe false positive & typical & sieve & wipe spill & random test control & irrelevant random probe \\
+saved test correct & typical & sieve & carry hot & risk aware eatl & risk aware eatl(reject,p=0.17) \\
+saved test correct & typical & sieve & pour without spill & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+saved test correct & typical & sieve & stack safely & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & sieve & stack safely & random test control & irrelevant random probe \\
+avoidable false negative & typical & sieve & push without sliding & random test control & irrelevant random probe \\
+abstention & typical & sieve & grasp without crushing & conservative prior & conservative prior(abstain) \\
+saved test correct & typical & knife & contain liquid & risk aware eatl & risk aware eatl(reject,p=0.17) \\
+avoidable false negative & typical & knife & lift & risk aware eatl & trial lift(mass=143, limit=900, friction=0.57) \\
+avoidable false negative & typical & knife & lift & random test control & irrelevant random probe \\
+saved test correct & typical & knife & support load & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & knife & support load & random test control & irrelevant random probe \\
+saved test correct & typical & knife & wipe spill & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+unsafe false positive & typical & knife & wipe spill & random test control & irrelevant random probe \\
+abstention & typical & knife & carry hot & conservative prior & conservative prior(abstain) \\
+avoidable false negative & typical & knife & carry hot & random test control & irrelevant random probe \\
+saved test correct & typical & knife & pour without spill & risk aware eatl & risk aware eatl(reject,p=0.16) \\
+saved test correct & typical & knife & stack safely & risk aware eatl & risk aware eatl(reject,p=0.06) \\
+saved test correct & typical & knife & push without sliding & risk aware eatl & risk aware eatl(reject,p=0.18) \\
+abstention & typical & knife & grasp without crushing & conservative prior & conservative prior(abstain) \\
+unsafe false positive & typical & spoon & contain liquid & random test control & irrelevant random probe \\
+avoidable false negative & typical & spoon & lift & random test control & irrelevant random probe \\
+unsafe false positive & typical & spoon & support load & random test control & irrelevant random probe \\
+unsafe false positive & typical & spoon & cut soft food & passive vision proxy & passive vision proxy(p=0.72) \\
+unsafe false positive & typical & spoon & cut soft food & uncertainty vision proxy & uncertainty vision proxy(p=0.73) \\
+unsafe false positive & typical & spoon & cut soft food & random test control & irrelevant random probe \\
+\bottomrule
+\end{longtable}

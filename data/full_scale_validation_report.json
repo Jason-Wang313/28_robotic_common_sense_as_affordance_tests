@@ -1,0 +1,25 @@
+{
+  "paper": 28,
+  "version": "v3 final full-scale",
+  "status": "complete",
+  "final_pdf": "C:/Users/wangz/Downloads/28.pdf",
+  "pages": 28,
+  "bytes": 324184,
+  "sha256": "5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E",
+  "local_paper_pdf_present": false,
+  "main_cases": 192000,
+  "main_method_decisions": 1920000,
+  "aggregate_method_decisions": 4977600,
+  "full_scale_elapsed_seconds": 437.075,
+  "latex_final_log": {
+    "overfull_boxes_found": false,
+    "undefined_references_found": false,
+    "undefined_citations_found": false
+  },
+  "verified_text_markers": [
+    "v3 final full-scale",
+    "192,000",
+    "4,977,600",
+    "risk-aware EATL"
+  ]
+}

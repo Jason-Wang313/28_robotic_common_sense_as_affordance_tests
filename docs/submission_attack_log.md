@@ -1,15 +1,34 @@
 # Submission Attack Log
 
-Updated: 2026-06-13
+Updated: 2026-06-15
 
-## Attack Rounds
+## v3 Attack Rounds
 
-1. Closest-prior attack: affordance learning, interactive perception, active sensing, TAMP feasibility checks, and language-grounded robotics all cover adjacent mechanisms. Response: keep novelty to executable witness semantics for embodied common-sense predicates.
-2. Formality attack: the lower bound is simple and label-only. Response: present it as a narrow impossibility for same-label affordance flips, not a broad theorem about all perception systems.
-3. Evidence attack: the main results are synthetic with hand-written tests. Response: keep the claim mechanism-level and workshop-only.
-4. Test-harm attack: executable tests may be costly, damaging, or unsafe. Response: add v2 test-cost stress.
-5. Artifact attack: v1 kept `paper/main.pdf` locally and recorded stale Desktop-copy status. Response: add a build script that copies only to Downloads and removes the local PDF.
+1. Scale attack: v2 used only 1000 episodes and a compact result table.
+   Response: added v3 full-scale suite with 4,977,600 aggregate method
+   decisions.
+2. Baseline attack: v2 compared against only text prior, passive proxy, and
+   EATL.  Response: added calibrated prior, uncertainty vision, conservative
+   prior, eager EATL, risk-aware EATL, cached EATL, oracle, and random-test
+   negative control.
+3. Cost attack: tests may be too expensive.  Response: added phase diagram over
+   hidden-flip rate, test harm, and failure harm.
+4. Policy attack: "run tests" is not enough.  Response: added risk-aware
+   selector and ablations.
+5. Cache attack: witnesses become stale.  Response: added strict, label-only,
+   TTL, demand-compatible, and no-cache comparisons.
+6. Noise attack: executable tests are not oracles.  Response: added probe-noise
+   and guard-design sweep.
+7. Strong perception attack: a VLM may see the deciding variable.  Response:
+   added passive visibility ladder and explicitly narrowed the claim.
+8. Demand attack: affordances are relative to task demand.  Response: added
+   demand and embodiment sweeps.
+9. Artifact attack: PDFs must be final-only in Downloads.  Response: final
+   export is `C:/Users/wangz/Downloads/28.pdf`; local `paper/main.pdf` removed.
+10. Page-depth attack: v2 was too short.  Response: final manuscript is 28 pages
+    with real experiment content and appendices.
 
-## V2 Outcome
+## v3 Outcome
 
-The paper remains workshop-only / strong-revise. EATL sharply reduces unsafe false positives under hidden affordance flips, but v2 shows the mechanism is justified only when diagnostic tests are cheap and safe enough. At normalized test-harm weight 1.25, EATL loses to the text prior in the label-preserving flip regime on safety-plus-test-cost.
+Paper 28 is final under the current batch standard as a full-scale synthetic
+mechanism paper.  It is still not a real-robot validation paper.

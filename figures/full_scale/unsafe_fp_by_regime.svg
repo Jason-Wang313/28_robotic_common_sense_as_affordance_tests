@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="460" viewBox="0 0 980 460">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490.0" y="25" font-family="Arial" font-size="18" text-anchor="middle">Unsafe false positives by regime</text>
+<line x1="85" y1="45" x2="85" y2="370" stroke="#222"/>
+<line x1="85" y1="370" x2="950" y2="370" stroke="#222"/>
+<rect x="100.0" y="128.3" width="36.0" height="241.7" fill="#275DAD"/>
+<rect x="139.0" y="74.5" width="36.0" height="295.5" fill="#C4493D"/>
+<rect x="178.1" y="323.7" width="36.0" height="46.3" fill="#27866E"/>
+<rect x="217.1" y="337.1" width="36.0" height="32.9" fill="#7B4FA1"/>
+<rect x="256.2" y="326.9" width="36.0" height="43.1" fill="#B47F17"/>
+<text x="190.1" y="405" font-family="Arial" font-size="11" text-anchor="middle" transform="rotate(20 190.1,405)">adversarial counterfeit</text>
+<rect x="316.2" y="132.9" width="36.0" height="237.1" fill="#275DAD"/>
+<rect x="355.3" y="109.8" width="36.0" height="260.2" fill="#C4493D"/>
+<rect x="394.3" y="342.9" width="36.0" height="27.1" fill="#27866E"/>
+<rect x="433.4" y="351.9" width="36.0" height="18.1" fill="#7B4FA1"/>
+<rect x="472.4" y="342.0" width="36.0" height="28.0" fill="#B47F17"/>
+<text x="406.4" y="405" font-family="Arial" font-size="11" text-anchor="middle" transform="rotate(20 406.4,405)">label preserving flips</text>
+<rect x="532.5" y="300.6" width="36.0" height="69.4" fill="#275DAD"/>
+<rect x="571.5" y="139.3" width="36.0" height="230.7" fill="#C4493D"/>
+<rect x="610.6" y="346.9" width="36.0" height="23.1" fill="#27866E"/>
+<rect x="649.6" y="361.6" width="36.0" height="8.4" fill="#7B4FA1"/>
+<rect x="688.7" y="347.3" width="36.0" height="22.7" fill="#B47F17"/>
+<text x="622.6" y="405" font-family="Arial" font-size="11" text-anchor="middle" transform="rotate(20 622.6,405)">task demand shift</text>
+<rect x="748.8" y="364.3" width="36.0" height="5.7" fill="#275DAD"/>
+<rect x="787.8" y="152.1" width="36.0" height="217.9" fill="#C4493D"/>
+<rect x="826.8" y="349.4" width="36.0" height="20.6" fill="#27866E"/>
+<rect x="865.9" y="362.7" width="36.0" height="7.3" fill="#7B4FA1"/>
+<rect x="904.9" y="348.3" width="36.0" height="21.7" fill="#B47F17"/>
+<text x="838.9" y="405" font-family="Arial" font-size="11" text-anchor="middle" transform="rotate(20 838.9,405)">typical</text>
+<rect x="85" y="425" width="12" height="12" fill="#275DAD"/>
+<text x="102" y="435" font-family="Arial" font-size="11">text_prior</text>
+<rect x="230" y="425" width="12" height="12" fill="#C4493D"/>
+<text x="247" y="435" font-family="Arial" font-size="11">passive_vision_proxy</text>
+<rect x="375" y="425" width="12" height="12" fill="#27866E"/>
+<text x="392" y="435" font-family="Arial" font-size="11">eager_eatl</text>
+<rect x="520" y="425" width="12" height="12" fill="#7B4FA1"/>
+<text x="537" y="435" font-family="Arial" font-size="11">risk_aware_eatl</text>
+<rect x="665" y="425" width="12" height="12" fill="#B47F17"/>
+<text x="682" y="435" font-family="Arial" font-size="11">cached_eatl</text>
+</svg>
