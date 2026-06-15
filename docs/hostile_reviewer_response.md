@@ -2,17 +2,32 @@
 
 ## Likely Rejection
 
-The work rebrands active sensing and affordance learning, then evaluates only a synthetic tabletop world with hand-written tests. Worse, some tests can be costly or destructive, so "execute a test" is not always safer than a cautious prior.
+The work still lacks real robot validation and could be seen as rebranding
+active sensing, affordance learning, and feasibility checking.  The synthetic
+environment uses hand-written tests and normalized costs, so the paper cannot
+claim deployable robot safety.
 
 ## Honest Response
 
-We agree that EATL is not a deployable robot system by itself. The contribution is a semantics for embodied common-sense claims: a predicate is supported only by current executable evidence for the robot-object-demand tuple.
+We agree that this is not a deployable robot system.  The contribution is a
+semantics for embodied common-sense assertions: a predicate is licensed by a
+current executable witness, failure certificate, abstention, or explicitly
+tracked unsupported-risk status.
 
-The v2 stress quantifies the objection. In label-preserving flips, EATL lowers unsafe false positives from 0.134 to 0.022 at mean test cost 0.095. That advantage breaks even at normalized test-harm weight 1.176, and EATL loses at weight 1.25. The paper should claim only cheap, safe, task-justified probes.
+The v3 evaluation is much stronger than v2 because it attacks the mechanism
+rather than only demonstrating it.  It includes 4,977,600 aggregate method
+decisions, strong baselines, phase diagrams, selector ablations, cache validity,
+noise, visibility, demand, embodiment, and failure-gallery analyses.
 
-## Required Upgrade For Main-Track Submission
+The paper also states when the mechanism loses.  If hidden flips are rare or
+probes are expensive, text or conservative priors can be cheaper.  If passive
+perception sees all deciding variables, tests are unnecessary.  If caches ignore
+validity scope, they become unsafe.
 
-- Evaluate on real or high-fidelity robot manipulation tasks.
-- Learn or synthesize test programs instead of hand-writing them.
-- Add a risk-aware test-selection policy that can abstain or use passive perception.
-- Compare against active perception, tactile probing, TAMP feasibility checks, and VLM affordance baselines.
+## Required Upgrade For A Real-Robot Main-Track Submission
+
+- Learn or synthesize executable tests.
+- Evaluate on real robot manipulation tasks or high-fidelity physics.
+- Calibrate probe costs, false-positive harms, and guard reliability.
+- Compare against real VLM affordance systems, tactile probing systems, active
+  sensing systems, and TAMP feasibility checkers.

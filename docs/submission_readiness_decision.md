@@ -1,25 +1,32 @@
 # Submission Readiness Decision
 
-Decision: workshop-only / strong-revise.
+Decision: v3 final full-scale synthetic mechanism paper; strong-revise for a
+robotics main track that requires hardware or high-fidelity simulation.
 
-## Why Not Submit-Ready
+## Why This Is Now Much Stronger
 
-- Evidence is synthetic and uses hand-written tests.
-- No real robot or high-fidelity physics result is included.
-- The lower bound covers label-only priors, not all multimodal or interactive systems.
-- V2 shows that test harm/cost can erase EATL's safety advantage.
-- There is no risk-aware policy for deciding when to test, abstain, or use perception.
+- The paper is 28 pages with full formalism, expanded related-work boundary,
+  main results, phase diagrams, ablations, cache studies, noise studies,
+  visibility studies, demand/embodiment shifts, failure galleries, and long
+  appendix tables.
+- The evidence expanded from the compact v2 run to 4,977,600 aggregate method
+  decisions.
+- The strongest claim is now supported: executable witnesses reduce unsafe
+  assertions under hidden same-name physical changes when selected with cost and
+  validity conditions.
+- The negative boundary is explicit rather than hidden.
 
-## Why Not Kill
+## Why It Is Still Not A Real-Robot Submission
 
-- The executable-witness semantics are crisp and distinct from name-prior scoring.
-- The hidden-flip regime exposes a real deployment failure mode.
-- EATL sharply reduces unsafe false positives when tests are cheap and targeted.
-- The v2 stress honestly narrows the claim instead of hiding the test-cost assumption.
+- No real robot validation is included.
+- No high-fidelity physics simulation is included.
+- Test policies and guards are hand-specified.
+- Costs are normalized synthetic costs.
+- Passive full-visibility baselines can solve the synthetic task, so the claim
+  must remain about hidden, stale, or demand-specific variables.
 
-## Required Next Work
+## Final Honest Position
 
-- Learn or synthesize executable affordance tests.
-- Add a test-selection policy with explicit probe risk, abstention, and passive perception.
-- Validate on robot manipulation tasks with measured test costs and failure harms.
-- Compare against active sensing, tactile probing, TAMP feasibility, and VLM affordance systems.
+The paper is final under the current batch standard as a full-scale synthetic
+mechanism paper.  It should be positioned as executable semantics and benchmark
+evidence, not as a deployable robot system.

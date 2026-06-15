@@ -10,9 +10,12 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{graphicx}
+\usepackage{array}
+\usepackage{longtable}
 
 \newtheorem{definition}{Definition}
 \newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
 
 \title{Robotic Common Sense as Executable Affordance Tests}
 
@@ -22,163 +25,209 @@
 
 \maketitle
 
-\paragraph{Submission-hardening version: v2.}
-This revision adds a test-cost stress. EATL is not a free safety theorem: in
-the label-preserving flip regime, the break-even normalized test-harm weight
-against the text prior is 1.176, and at weight 1.25 EATL's safety-plus-test-cost
-score is 0.141 versus 0.134 for the text prior. The supported claim is therefore
-that executable tests are useful when diagnostic probes are cheap and safe
-relative to the task failure they prevent.
+\paragraph{Submission-hardening version: v3 final full-scale.}
+This version replaces the compact v2 stress test with a multi-family
+full-scale synthetic evaluation.  The new run covers 20 object categories, 10
+affordance predicates, 8 deployment regimes, 10 mechanisms, 7 experiment
+families, 192,000 main robot-object-task cases, 1,920,000 main method decisions,
+and 4,977,600 aggregate method decisions overall.  The evidence remains
+synthetic and mechanism-level: it does not claim real-robot validation.  The
+central strengthened claim is that executable witnesses are useful when they
+are selected with explicit cost, demand, and validity conditions; testing is
+not a universal safety theorem.
 
 \begin{abstract}
-Robotic ``common sense'' is often treated as a prior over plausible facts:
-mugs hold liquid, knives cut, boxes support objects.  That framing is fragile
-for embodied agents because the dangerous cases are precisely those in which a
-name or visual category remains familiar while the physical variables have
-changed: a mug has a hole, a knife is dull, a box is wet, or the robot gripper
-cannot apply the required force.  We propose Executable Affordance Test Logic
-(EATL), in which a common-sense affordance predicate is not a text fact, a
-static label, or a planner precondition, but a small robot-specific test program
-that returns a witness or failure certificate for a given object, action, robot,
-and task demand.  We give a simple lower bound showing that any label-only prior
-fails on label-preserving affordance flips, and we provide a runnable synthetic
-tabletop stress test covering containment, lifting, load support, cutting,
-wiping, and hot carrying.  In the flip regime, a name prior reaches 0.834
-accuracy with 0.134 unsafe false positives, while EATL reaches 0.972 accuracy
-with 0.022 unsafe false positives at mean test cost 0.095.  The evidence is not
-a real-robot result; it is an executable demonstration that the common field
-assumption--object names track physical affordances--is a mechanism-level
-failure point.  A v2 stress test shows the boundary: if diagnostic probes have
-normalized harm weight 1.25, EATL no longer beats the text prior on
-safety-plus-test-cost in the label-preserving flip regime.
+Robotic ``common sense'' is often treated as a prior over familiar facts: mugs
+hold liquid, knives cut, sponges wipe, boxes support objects.  That framing is
+fragile for embodied agents because deployment failures often preserve the name
+while changing the physics: a mug leaks, a box is wet, a knife is dull, a tray
+warps under heat, a gripper is weaker than expected, or the task demand exceeds
+the familiar use case.  We propose Executable Affordance Test Logic (EATL), a
+semantics in which a robotic common-sense predicate is not licensed by a text
+fact, category label, or passive score alone, but by an executable
+task-demand-specific witness for the current robot, object, action, and demand.
+The witness can pass, fail, or abstain, and it carries a cost and a validity
+scope.  We give simple bounds showing why label-only priors fail under
+label-preserving affordance flips, when cost-aware testing is warranted, and
+why stale witnesses become unsafe when their validity conditions are violated.
+We then evaluate the mechanism in a transparent synthetic tabletop world.  In a
+192,000-case main benchmark, the text prior has 0.188 unsafe false positives
+under label-preserving flips and 0.197 under adversarial counterfeits; a
+risk-aware EATL selector reduces those rates to 0.015 and 0.025 while using
+less test cost than eager testing.  Phase diagrams, selector ablations, cache
+validity tests, probe-noise sweeps, visibility ladders, demand shifts, and
+failure galleries identify the boundary: when hidden flips are rare or probes
+are expensive, conservative priors can dominate.  The contribution is therefore
+not ``always test,'' but a precise operational semantics for when a robot may
+assert embodied common sense.
 \end{abstract}
 
 \section{Introduction}
 
-Embodied agents inherit a tempting shortcut from language: if the object is
-called a mug, use mug common sense.  This shortcut appears throughout robot
-systems that map language, object categories, or visual detections into
-affordance scores, skill choices, or planning preconditions.  It is also often
-useful.  A robot should not relearn from scratch that bowls usually contain
-liquid or that sponges usually wipe spills.
+Robots inherit an attractive shortcut from language: if an object is called a
+mug, use mug common sense.  That shortcut is often practical.  A robot should
+not rediscover from scratch that a bowl can contain cereal, that a sponge can
+wipe a spill, or that a brick can support weight.  Modern language-conditioned
+robotics, affordance detectors, knowledge bases, and robot foundation models
+all benefit from the fact that names and appearances are correlated with many
+physical regularities.
 
-The problem is that common sense for robots is not only about what is likely. It
-is about what is safe to do now.  A name can remain unchanged while the physical
-predicate changes: a cup-shaped sieve leaks, a mug has a hairline crack, a
-cardboard box collapses under a heavy object, a knife is decorative and dull, or
-a plastic tray deforms under heat.  These are not exotic philosophical cases.
-They are ordinary deployment failures caused by hidden state, materials, wear,
-counterfeits, task demand, and embodiment.
+The shortcut becomes dangerous when the name is stable but the relevant
+physical predicate is not.  A mug can have a hole.  A cup-shaped sieve can be
+concave but porous.  A knife can be decorative and dull.  A cardboard box can be
+wet, crushed, or overloaded.  A plastic tray can look useful until the demanded
+temperature changes.  A gripper with a weaker force limit may make an otherwise
+reasonable lift predicate false.  These are not philosophical edge cases; they
+are ordinary deployment changes in material, damage, wear, counterfeit objects,
+task demand, and robot embodiment.
 
-This paper argues that robotic common sense should be operational rather than
-textual.  We define a common-sense affordance claim such as
-\texttt{can-contain-liquid(object, 200ml)} by the executable micro-experiment
-that would make it true for this robot: pour a safe probe volume, observe
-leakage and stability, and return a witness.  Similar tests can probe lift,
-support, cut, wipe, or carry-hot predicates.  The central object is therefore
-not a larger language model, a better dataset, or a verifier bolted onto a plan.
-It is a semantics for embodied common-sense predicates.
+This paper argues that robotic common sense should be executable.  The claim
+\texttt{can-contain-liquid(object, 350ml)} should mean that the robot has a
+current witness for the relevant physical relation: a bounded diagnostic pour,
+leak observation, stability check, and guard.  The claim
+\texttt{can-support-load(object, 1kg)} should mean that the robot has a load
+witness or a valid cached certificate under the current load demand.  The claim
+\texttt{can-grasp-without-crushing(object, force)} should depend on the robot's
+end effector and the object's crush limit, not merely on the object's name.
 
-Our contributions are:
-\begin{itemize}
-\item We formalize Executable Affordance Test Logic (EATL): affordance
-predicates are typed test programs over robot, object, action, demand, and
-observation.
-\item We prove a simple impossibility result for label-only common-sense priors
-under label-preserving affordance flips.
-\item We release a runnable synthetic stress test showing that the broken
-assumption matters under controlled physical mutations.
-\item We map the novelty boundary against affordance learning, task-and-motion
-planning, language-conditioned robotics, active sensing, and world models.
-\end{itemize}
+This reframing is intentionally narrower than general affordance learning.  It
+does not claim that tests must be hand-written, that tests are free, or that
+passive perception is useless.  It claims that an embodied common-sense
+assertion is unsupported unless the robot has evidence that licenses the
+assertion for the current robot-object-demand tuple.  That evidence may come
+from a learned model, a tactile probe, a planner feasibility check, a cached
+experiment, or a direct micro-action.  What matters is the semantics: the
+predicate is tied to executable evidence, and lack of evidence is not the same
+as truth.
+
+The v2 version of this paper made the basic point with a small synthetic
+experiment and a single test-cost stress.  The v3 version strengthens the
+evidence and narrows the claim.  We evaluate a larger transparent environment
+with 20 objects and 10 predicates, add risk-aware and cached variants, introduce
+adversarial same-name counterfeits, vary probe cost and failure harm, examine
+cache staleness, sweep sensor noise and guard design, give passive baselines
+more hidden variables, and vary task demand and embodiment.  The result is more
+useful and less absolute: executable witnesses can sharply reduce unsafe
+assertions, but only if the robot accounts for test cost, failure harm,
+abstention, and witness validity.
+
+\paragraph{Contributions.}
+First, we formalize Executable Affordance Test Logic (EATL): a common-sense
+affordance predicate is licensed by a typed test program, observation trace,
+guard, cost, and validity scope.  Second, we state simple formal results for
+label-preserving flips, cost-aware testing, abstention, and stale witnesses.
+Third, we provide a full-scale synthetic benchmark that attacks the mechanism
+with stronger baselines, ablations, stress tests, and negative controls.  Fourth,
+we document when EATL should lose: rare hidden flips, expensive probes,
+incorrect cache reuse, high sensor noise, or passive visibility of the deciding
+variable.
 
 \section{Related Work and Novelty Boundary}
 
-\textbf{Affordances.}
+\paragraph{Affordances and action possibilities.}
 Affordances originate as action possibilities relative to an actor
 \citep{gibson1979ecological}; design work distinguishes perceived affordances
-and constraints \citep{norman1988psychology}.  Robotics has long treated
-affordances as relations among entities, actions, and effects
+from physical constraints \citep{norman1988psychology}.  Robotics has long
+modeled affordances as relations among objects, actions, and effects
 \citep{sahin2007afford,montesano2008learning,stoytchev2005behavior}.
-Interactive object learning and object-action complexes similarly ground
-perception in action \citep{fitzpatrick2003learning,kruger2011object}.  These
-works make generic affordance prediction non-novel.  Our distinction is that an
-affordance predicate is accepted as robot common sense only when its executable
-test has a current witness.
+Interactive object learning and object-action complexes ground representation
+in action outcomes \citep{fitzpatrick2003learning,kruger2011object}.  These
+lines make generic affordance prediction non-novel.  The distinction here is
+semantic: a robot common-sense predicate is not accepted because an affordance
+classifier predicts it; it is accepted because the robot has executable evidence
+for the current demand.
 
-\textbf{Visual and learned affordance detection.}
-RGB-D activity models, part-based tool affordances, and deep affordance
-detectors predict likely functions from observations
-\citep{koppula2013learning,myers2015affordance,do2018affordancenet}. Knowledge
-representations encode object affordances for reasoning
-\citep{zhu2014reasoning}.  These methods can provide candidates or priors for
-EATL, but the proposed semantics rejects a prediction that lacks a
-task-demand-specific test witness.
+\paragraph{Visual and learned affordance detection.}
+RGB-D activity models, part-based tool-affordance detectors, and deep
+affordance segmentation methods infer likely functions from passive
+observations \citep{koppula2013learning,myers2015affordance,do2018affordancenet}.
+Knowledge representations encode object affordances for reasoning
+\citep{zhu2014reasoning}.  These systems can be inputs to EATL.  A visual model
+may propose which test to run, estimate a prior, or sometimes directly observe
+the deciding variable.  The novelty claim does not require passive perception
+to fail.  It requires the paper to separate \emph{prediction} from
+\emph{licensed assertion}: when the deciding variable is hidden, stale, or
+demand-specific, a passive score is not itself a witness.
 
-\textbf{Planning and feasibility.}
-Task-and-motion planning integrates symbolic choices with geometric or
-continuous feasibility checks
-\citep{kaelbling2011hierarchical,toussaint2015logic,garrett2020pddlstream}.
-This makes feasibility checking inside a planner non-novel.  EATL differs in
-scope: it defines embodied common-sense claims before plan execution and treats
-failure certificates as first-class outputs for hidden physical variables such
-as holes, porosity, dull edges, and load capacity.
+\paragraph{Planning and feasibility checking.}
+Task-and-motion planning integrates symbolic choices with continuous
+feasibility checks \citep{kaelbling2011hierarchical,toussaint2015logic,garrett2020pddlstream}.
+This makes feasibility checks inside a planner non-novel.  EATL differs in
+where the assertion lives.  It treats an embodied common-sense predicate as a
+first-class object before plan execution: the predicate can pass, fail, abstain,
+or expire, and that status can be reused by a planner or by a language
+conditioned policy.  A failed pour probe is not just a low planning score; it is
+a local failure certificate for a named physical relation.
 
-\textbf{Language-conditioned robotics.}
-Recent systems use language models, multimodal models, or robot foundation
-models to guide skill choice and manipulation
-\citep{ahn2022saycan,huang2022inner,liang2023code,huang2023voxposer,driess2023palme,brohan2022rt1,brohan2023rt2,openx2023,shridhar2022cliport}.
-Other work highlights that language models can struggle with planning
-\citep{huang2022zeroshot,valmeekam2023plan}.  Our hostile distribution
-decouples object names from causal affordance variables.  In that setting, text
-priors are the object of critique, not the mechanism.
+\paragraph{Language-conditioned robotics and robot foundation models.}
+Language models and multimodal models guide skill selection, planning, and
+manipulation \citep{ahn2022saycan,huang2022inner,liang2023code,huang2023voxposer,driess2023palme,brohan2022rt1,brohan2023rt2,openx2023,shridhar2022cliport}.
+Other work shows limitations of language-only planning
+\citep{huang2022zeroshot,valmeekam2023plan}.  EATL is not an alternative to
+foundation models.  It is a contract that such systems can satisfy or violate:
+if a language-conditioned policy asserts that a mug can safely carry hot
+liquid, the assertion should be tied to a witness for the current mug, robot,
+and temperature, or explicitly marked as unsupported.
 
-\textbf{Interactive perception, self-supervision, and world models.}
-Robots can learn by poking, grasping, or predicting future observations
-\citep{agrawal2016poke,pinto2016supersizing,ha2018world}.  EATL can use such
-models as implementations of tests.  The new claim is narrower: the meaning of
-a robot common-sense predicate is the executable evidence that certifies it for
-the current robot-object-demand tuple.
+\paragraph{Interactive perception and world models.}
+Robots can learn by poking, grasping, and predicting future observations
+\citep{agrawal2016poke,pinto2016supersizing,ha2018world}.  EATL can use learned
+world models as implementations of tests.  The proposed contribution is not
+that interaction is useful; that is well established.  The contribution is that
+robot common-sense predicates should be defined by the executable evidence that
+would make them true for the current task.  This is a small but consequential
+shift: the output is not only a policy or prediction, but a typed witness or
+failure certificate.
 
 \section{Executable Affordance Test Logic}
 
-Let $o$ be an object instance, $r$ a robot embodiment, $a$ a candidate action
-family, and $d$ a task demand such as volume, load, temperature, or required
-precision.  A conventional prior estimates $p(y \mid \ell, x)$ where $\ell$ is
-the object label and $x$ is a passive observation.  EATL instead attaches a test
-program to each predicate.
+Let $o$ be an object instance, $r$ a robot embodiment, $a$ an action family, and
+$d$ a task demand.  A conventional prior estimates $p(y \mid \ell, x)$, where
+$\ell$ is an object label and $x$ is a passive observation.  EATL instead
+attaches a test program to the predicate itself.
 
 \begin{definition}[Executable affordance test]
-An executable affordance test for predicate $\phi$ is a tuple
-$T_{\phi}=(\pi_{\phi}, g_{\phi}, c_{\phi})$.  The micro-policy $\pi_{\phi}$
-chooses a bounded diagnostic action for $(r,o,a,d)$, the observation function
-returns a trace $\tau$, and the guard $g_{\phi}(\tau)$ returns
-\textsc{pass}, \textsc{fail}, or \textsc{abstain}.  The scalar $c_{\phi}$ is
-the normalized test cost.
+For predicate $\phi$, an executable affordance test is a tuple
+$T_{\phi}=(\pi_{\phi}, h_{\phi}, g_{\phi}, c_{\phi}, v_{\phi})$.  The
+micro-policy $\pi_{\phi}$ chooses a bounded diagnostic action for
+$(r,o,a,d)$.  The observation map $h_{\phi}$ returns a trace $\tau$.  The guard
+$g_{\phi}(\tau)$ returns \textsc{pass}, \textsc{fail}, or \textsc{abstain}.
+The scalar $c_{\phi}$ is the normalized cost of the test.  The validity
+predicate $v_{\phi}$ specifies when the witness remains applicable.
 \end{definition}
 
-\begin{definition}[EATL witness]
+\begin{definition}[Witness and certificate]
 The robot may assert $\phi(r,o,a,d)$ only if it has a witness
-$(T_{\phi},\tau)$ such that $g_{\phi}(\tau)=\textsc{pass}$ under the current
-robot, object, action, and demand.  If the guard returns \textsc{fail}, the
-trace is a failure certificate; if it returns \textsc{abstain}, the predicate is
-unavailable for safe planning.
+$(T_{\phi},\tau)$ such that $g_{\phi}(\tau)=\textsc{pass}$ and
+$v_{\phi}(r,o,a,d,\tau)=1$.  If $g_{\phi}(\tau)=\textsc{fail}$, the trace is a
+failure certificate.  If $g_{\phi}(\tau)=\textsc{abstain}$, the predicate is
+unavailable for safe assertion.
 \end{definition}
 
-Examples are deliberately mundane.  \texttt{can-contain-liquid} is tested by a
-safe pour probe that observes leakage and stability.  \texttt{can-support-load}
-places a calibration load below the task demand.  \texttt{can-cut-soft-food}
-uses a low-force edge probe on a sacrificial material.  \texttt{can-wipe-spill}
-measures absorbed volume.  \texttt{can-carry-hot} tests heat resistance and
-handle availability.  These are not full task rollouts.  They are cheap
-pre-task experiments whose observations target the causal variables that a name
-or passive image may not expose.
+\begin{definition}[Cached witness]
+A cached witness for $\phi$ is a previous pass trace with a stored validity
+scope over object state, robot embodiment, task demand, and time.  Reuse is
+licensed only if the current tuple lies inside that scope.  Label-only reuse is
+not a valid cache policy unless the label is known to determine the predicate.
+\end{definition}
 
-\section{A Simple Lower Bound}
+Examples are deliberately mundane.  \texttt{can-contain-liquid} can be tested
+by a safe pour probe that observes leakage and stability.  \texttt{can-lift}
+can use a bounded lift and slip observation.  \texttt{can-support-load} can use
+a calibration load below the task demand.  \texttt{can-cut-soft-food} can use a
+low-force edge probe.  \texttt{can-wipe-spill} can measure absorption.
+\texttt{can-carry-hot} can check heat resistance and handle availability.
+\texttt{can-grasp-without-crushing} can test whether a required grip force
+exceeds a fragile object's crush limit.  These are not full task rollouts.  They
+are targeted micro-experiments whose observations address variables that names
+or passive images may miss.
 
-The formal point is intentionally small: if the only input is a label and the
-deployment process can preserve that label while flipping the affordance, no
-text prior can recover the hidden variable.
+\section{Simple Formal Analysis}
+
+The analysis is intentionally modest.  It does not prove that any particular
+test implementation is safe.  It shows why labels are insufficient under a
+specific hostile distribution, why cost-aware selection is required, and why
+cached witnesses must carry validity conditions.
 
 \begin{proposition}[Label-only error under affordance flips]
 Fix an object label $\ell$ and binary affordance predicate $Y$.  Any classifier
@@ -188,145 +237,772 @@ $h$ that depends only on $\ell$ has conditional error
 \]
 where $p_{\ell}=\Pr[Y=1\mid L=\ell]$.  If a deployment distribution presents
 balanced same-label counterexamples, $p_{\ell}=1/2$, the error is at least
-$1/2$.  If an executable test observes sufficient evidence $S$ with guard
-$g(S)$ satisfying $\Pr[g(S)\neq Y]\leq \epsilon$, then the test-based predicate
-has error at most $\epsilon$ on non-abstaining trials.
+$1/2$.
 \end{proposition}
 
-\textit{Proof sketch.}
-For a fixed label, $h(\ell)$ is a constant.  If it predicts 1, its error is
-$1-p_{\ell}$; if it predicts 0, its error is $p_{\ell}$.  The best label-only
-choice therefore has error $\min(p_{\ell},1-p_{\ell})$.  The test claim follows
-directly from the assumed guard error.  The result does not say EATL tests are
-free or automatically available; it says the missing input channel is a real
-failure mode for label-only common sense.
+\textit{Proof.}
+For a fixed label, $h(\ell)$ is constant.  If it predicts 1, its error is
+$1-p_{\ell}$; if it predicts 0, its error is $p_{\ell}$.  The better constant
+choice therefore has error $\min(p_{\ell},1-p_{\ell})$.
 
-\section{Synthetic Stress Test}
+\begin{proposition}[Test value threshold]
+Suppose a prior policy would assert a predicate with estimated false-positive
+probability $q$, false-positive harm $H$, and no test cost.  A test with
+expected post-test false-positive probability $q_T$ and cost $C_T$ improves
+expected safety-plus-test cost whenever
+\[
+  (q-q_T)H > C_T .
+\]
+If the inequality is reversed, eager testing is dominated by the prior for that
+case.
+\end{proposition}
 
-We implement a transparent tabletop world with ten named object categories:
-mug, bowl, sieve, knife, spoon, sponge, brick, cardboard box, plastic tray, and
-glass.  Each instance has hidden physical variables including concavity,
-porosity, holes, capacity, mass, friction, load capacity, sharpness, edge
-stiffness, absorbency, heat resistance, handles, stability, and flatness.
-Ground-truth affordances are deterministic functions of these variables and the
-task demand.
+\textit{Interpretation.}
+This is the paper's core boundary.  EATL is not ``always test.''  It says the
+robot should treat an affordance assertion as requiring executable evidence,
+but obtaining evidence has cost.  A risk-aware selector should run a test when
+the expected reduction in unsafe assertion harm exceeds probe cost, and abstain
+or use a conservative prior otherwise.
 
-We compare three mechanisms:
-\begin{itemize}
-\item \textbf{text\_prior}: a hand-coded name prior such as mugs contain liquid
-and knives cut.
-\item \textbf{vision\_proxy}: a passive geometry proxy that sees shape-like
-variables but misses hidden material, damage, and wear.
-\item \textbf{eatl}: executable tests that probe the task-specific causal
-variables with small independent observation noise.
-\end{itemize}
+\begin{proposition}[Abstention is not failure]
+Let $\bot$ denote abstention.  If a policy returns $\bot$ whenever the expected
+cost of both assertion and rejection exceeds an application-specific escalation
+cost $C_{\bot}$, then abstention is preferable to forced assertion whenever
+$qH > C_{\bot}$ and preferable to forced rejection whenever $pM>C_{\bot}$,
+where $p$ is the probability the predicate is true and $M$ is the missed
+opportunity or recovery cost.
+\end{proposition}
 
-The regimes are: typical objects with mild wear; label-preserving flips where
-names stay fixed while hidden physical variables change; label swaps where an
-object inherits another object's physical variables but keeps its name; and a
-mixed regime.  The run uses 1000 episodes and 180000 method-task rows.
+The experiments use abstention conservatively, mostly in the conservative prior
+and high-noise guard settings.  The proposition matters because a robot
+common-sense system should be allowed to say ``unsupported'' rather than
+hallucinating a safe physical fact.
+
+\begin{proposition}[Invalid cache reuse]
+Let a cached witness have original tuple $z=(r,o,a,d)$ and current tuple
+$z'=(r',o',a,d')$.  If the cache policy reuses the witness whenever labels
+match, but there exists a hidden variable $u$ such that
+$\phi(z,u)=1$ and $\phi(z',u')=0$, then the cache policy has a positive unsafe
+false-positive rate on any distribution assigning positive probability to
+$(z,u,z',u')$.
+\end{proposition}
+
+This proposition is nearly tautological, but it exposes a common engineering
+mistake.  A successful past test is useful only if the validity scope includes
+the current robot, object state, and demand.  The v3 cache experiment quantifies
+the mistake: label-only cache reuse has 0.270 unsafe false positives, while
+strict validity reuse has 0.025 with lower cost than no cache.
+
+\section{Synthetic Environment}
+
+The environment is transparent by design.  It is not a photorealistic simulator
+and not a hardware claim.  Each object has a name and hidden physical variables:
+concavity, porosity, holes, capacity, mass, friction, load capacity, sharpness,
+edge stiffness, absorbency, heat resistance, handle availability, base
+stability, flatness, pour lip, crush limit, grippability, surface fragility, and
+wetness.  Ground-truth affordances are deterministic functions of those
+variables, task demands, and robot embodiment.
+
+\paragraph{Objects.}
+The v3 catalog contains 20 named categories: mug, bowl, sieve, knife, spoon,
+sponge, brick, cardboard box, plastic tray, glass, thermos, paper cup, ceramic
+plate, towel, wooden block, foam block, metal pan, silicone mat, mesh bag, and
+rubber grip pad.  The names intentionally include ordinary household objects,
+fragile objects, porous objects, heat-sensitive objects, and objects whose
+visual geometry can be misleading.
+
+\paragraph{Predicates.}
+The ten task predicates are containment, lift, support load, cut soft food, wipe
+spill, carry hot object, pour without spill, stack safely, push without sliding,
+and grasp without crushing.  Each predicate is evaluated under a demand such as
+volume, load, temperature, required sharpness, push force, or grip force.
+
+\paragraph{Regimes.}
+The main benchmark includes eight deployment regimes:
+\textbf{typical}, with mild wear;
+\textbf{label-preserving flips}, where hidden variables change while names do
+not;
+\textbf{label swaps}, where physical state is borrowed from another category;
+\textbf{mixed}, which samples the previous regimes;
+\textbf{adversarial counterfeits}, where a same-name object is modified to
+break a high-confidence prior;
+\textbf{degraded/worn}, with broad capacity and material degradation;
+\textbf{task-demand shift}, where the demanded volume, load, temperature, or
+force changes; and
+\textbf{embodiment shift}, where the robot gripper or heat tolerance changes.
+
+\paragraph{Methods.}
+We compare ten mechanisms.  \textbf{text prior} uses object names only.
+\textbf{calibrated text prior} weakens label confidence in hostile regimes.
+\textbf{passive vision proxy} sees geometry-like variables but misses many
+hidden material and damage variables.  \textbf{uncertainty vision proxy}
+abstains near its decision boundary.  \textbf{conservative prior} asserts only
+low-consequence high-confidence positives and otherwise rejects or abstains.
+\textbf{eager EATL} always runs the predicate-specific test.
+\textbf{risk-aware EATL} blends label and visible priors, estimates test value,
+and runs tests when expected harm reduction exceeds test cost.
+\textbf{cached EATL} reuses strict current-state witnesses when available.
+\textbf{oracle hidden state} is an upper bound.  \textbf{random test control}
+is an intentionally irrelevant negative control.
+
+\paragraph{Metrics.}
+The main safety metric is unsafe false-positive rate: cases where a method
+asserts an affordance that is false.  We also report accuracy, avoidable false
+negatives, abstention rate, F1, mean test cost, and mean total cost.  Total cost
+adds test cost, false-positive harm, and a small false-negative recovery cost.
+The absolute units are synthetic; the comparisons are meaningful because all
+methods share the same cost accounting.
+
+\section{Full-Scale Experiment Program}
+
+The v3 runner executes seven aggregate experiment families and a bounded failure
+gallery.  It avoids retaining full raw logs in memory: each family streams
+through cases, keeps keyed counters, and writes aggregate CSVs.  The main family
+uses 12 seeds, 8 regimes, 10 episodes per regime, 20 objects, 10 tasks, and 10
+methods, for 192,000 robot-object-task cases and 1,920,000 method decisions.
+The full suite writes 4,977,600 aggregate method decisions across main, phase,
+selector, cache, noise, visibility, and demand/embodiment families.
+
+Family A is the main multi-seed benchmark.  Family B sweeps hidden-flip rate,
+test-harm weight, and failure harm to build a cost phase diagram.  Family C
+ablates the risk-aware selector against eager testing, cheapest-test selection,
+no failure-harm accounting, no test-harm accounting, no abstention, and random
+testing.  Family D studies witness caches under object drift.  Family E sweeps
+probe noise and guard design.  Family F gives passive perception progressively
+more visibility into hidden variables.  Family G sweeps task demands and robot
+embodiments.  Family H records representative failures, abstentions, saved
+tests, and negative-control errors.
+
+\section{Main Results}
+
+Figure~\ref{fig:unsafe} and Table~\ref{tab:main} show the central result.  The
+text prior is excellent in the typical regime because the catalog's names match
+their ordinary physics: 0.994 accuracy and 0.004 unsafe false positives.  That
+success is exactly why the shortcut is tempting.  Under label-preserving flips,
+however, the text prior has 0.188 unsafe false positives and the passive proxy
+has 0.212.  Eager EATL reduces the rate to 0.022, and risk-aware EATL reduces it
+further to 0.015 while using lower mean test cost.  Under adversarial
+counterfeits, the text prior has 0.197 unsafe false positives, passive vision
+has 0.240, eager EATL has 0.037, and risk-aware EATL has 0.025.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/full_scale/unsafe_fp_by_regime.pdf}
+\caption{Unsafe false-positive rates in the main v3 benchmark.  Name priors are
+excellent on typical objects but break under hidden physical changes.  Eager and
+risk-aware EATL reduce unsafe assertions; risk-aware EATL pays less test cost by
+using prior and visible evidence when the test value is low.}
+\label{fig:unsafe}
+\end{figure}
 
 \begin{table}[t]
 \centering
 \small
-\input{results_table.tex}
-\caption{Runnable synthetic stress test.  Unsafe false positives are cases in
-which a method asserts an affordance that is false, e.g., approving a leaking
-container or overloaded support.}
-\label{tab:results}
+\resizebox{\linewidth}{!}{\input{full_scale_main_table.tex}}
+\caption{Main benchmark summary over 192,000 robot-object-task cases and
+1,920,000 method decisions.  Total cost includes unsafe false positives, missed
+true affordances, abstentions, and test cost under the shared synthetic cost
+model.}
+\label{tab:main}
 \end{table}
 
-Table~\ref{tab:results} shows the intended failure.  The text prior is
-reasonable on typical objects, but under label-preserving flips it has 0.134
-unsafe false positives.  The vision proxy has even higher unsafe false
-positives because visible geometry often remains plausible while material or
-damage state changes.  EATL reduces unsafe false positives to 0.022 by testing
-the deciding variable.  Its mean normalized test cost is 0.095, representing
-the overhead of the diagnostic micro-experiment.
+The strongest positive finding is not merely that tests help; it is that
+selective tests help more than eager tests.  In label-preserving flips, eager
+EATL has mean total cost 0.213, while risk-aware EATL has 0.150.  In the mixed
+regime, eager EATL has 0.202 total cost and risk-aware EATL has 0.109.  In
+task-demand shift, risk-aware EATL achieves 0.985 accuracy and 0.007 unsafe
+false positives, compared with 0.922 accuracy and 0.057 unsafe false positives
+for the text prior.  This supports the v3 claim: the semantic shift to
+executable witnesses should be paired with a policy that decides when evidence
+is worth obtaining.
 
-\paragraph{V2 test-cost stress.}
-The main table assumes that the diagnostic probe is cheap and harmless relative
-to the task failure.  To attack that assumption, we compute a safety-plus-test
-cost
-\[
-  J_{\lambda}=\textrm{unsafe false positive rate}+\lambda\cdot
-  \textrm{mean test cost},
-\]
-where $\lambda$ is a normalized harm weight for running the test itself.
-Table~\ref{tab:test-cost} reports the break-even $\lambda$ at which EATL and the
-text prior have the same $J_{\lambda}$.  In the label-preserving flip regime,
-the break-even value is 1.176.  At $\lambda=1.25$, EATL's cost is 0.141 and the
-text prior's cost is 0.134.  Thus EATL should not be interpreted as ``always
-test.'' It is justified when the probe is cheap, safe, or reserved for regimes
-where hidden physical flips are likely enough to pay for the diagnostic action.
+The main negative finding is equally important.  In the typical regime, the
+text prior has lower total cost than risk-aware EATL because hidden flips are
+rare and tests add overhead.  A conservative prior also has low unsafe risk in
+some regimes by abstaining.  Therefore EATL should not be deployed as an
+unconditional reflex.  It should be a licensing rule for assertion plus a
+cost-aware procedure for obtaining or reusing evidence.
+
+\section{Cost Phase Diagram}
+
+The v2 paper reported one break-even test-harm value.  The v3 phase diagram
+sweeps hidden-flip rate, test-harm weight, and failure harm.  At failure harm 5
+and test-harm weight 1, Figure~\ref{fig:phase} shows that text priors dominate
+when hidden flips are absent, but risk-aware testing becomes better as the flip
+rate grows.  The table makes the boundary more precise.  At flip rate 0.10 and
+test-harm weight 3, the text prior or conservative prior can win.  At flip rate
+0.25, risk-aware EATL wins for moderate test costs and begins to lose only at
+the highest test-harm settings.  At flip rate 0.75, risk-aware EATL wins across
+all listed test costs because the unsafe-assertion harm dominates.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{../figures/full_scale/phase_hidden_rate_cost.pdf}
+\caption{Cost phase diagram slice.  When hidden affordance flips are rare,
+testing can be unnecessary overhead.  As the same-label flip rate rises,
+risk-aware testing becomes the lowest-cost policy.}
+\label{fig:phase}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{phase_boundary_table.tex}}
+\caption{Selected phase-boundary rows.  Negative Risk-text values mean
+risk-aware EATL has lower total cost than the text prior.}
+\label{tab:phase}
+\end{table}
+
+This result is a useful guard against overclaiming.  The paper's thesis is not
+that every robot should test every object before every action.  The thesis is
+that a robot should know whether an affordance assertion is licensed by current
+evidence.  If the expected value of evidence is low, the system can reuse a
+valid witness, use a conservative prior, abstain, or continue with a label prior
+under explicit risk.
+
+\section{Selector Ablations}
+
+Table~\ref{tab:ablation} compares risk-aware EATL with policies that ignore
+pieces of the selection problem.  The random test control is intentionally bad:
+it pays test cost and still has unsafe false positives above 0.43 in the hostile
+regimes.  Cheapest-test selection improves on the random control but remains
+unsafe because cheap probes are not necessarily relevant.  Eager EATL is strong
+but pays unnecessary cost.  The risk-aware selector is consistently lower cost
+than eager testing in label-preserving flips, mixed cases, and adversarial
+counterfeits.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{selector_ablation_table.tex}}
+\caption{Selector ablations.  The mechanism is not ``run any test''; the test
+must be task-relevant and worth its cost.}
+\label{tab:ablation}
+\end{table}
+
+The ablation also reveals a limitation of the current synthetic policy.  Some
+``no abstention'' variants are close to or slightly better than the base
+risk-aware selector because the main benchmark makes most tests cheap enough
+and informative enough that abstention is rarely needed.  This is not evidence
+against abstention as a semantic category.  It means the current synthetic
+costs favor decisive testing.  The noise and high test-harm families provide
+the more meaningful abstention stress.
+
+\section{Witness Cache Validity}
+
+Executable witnesses should be reusable when the physical relation remains
+valid.  Reuse is valuable because it avoids repeated probes; it is dangerous
+when validity is tracked only by object label.  Family D simulates object drift,
+including damage, wear, wetness, demand changes, and robot changes.  Table
+\ref{tab:cache} shows the result.  No-cache testing has 0.974 accuracy and mean
+test cost 0.103.  Strict cache reuse keeps essentially the same accuracy while
+reducing test cost to 0.058 and total cost to 0.184.  Label-only cache reuse
+looks cheap, with mean test cost 0.003, but it has 0.270 unsafe false positives
+because old witnesses are reused after the hidden state changes.
 
 \begin{table}[t]
 \centering
 \small
-\input{test_cost_stress_table.tex}
-\caption{V2 test-cost stress.  Break-even $\lambda$ is the normalized probe-harm
-weight where EATL's unsafe false positives plus test cost match the text prior's
-unsafe false positives.}
-\label{tab:test-cost}
+\input{cache_validity_table.tex}
+\caption{Cache validity under object and demand drift.  Label-only reuse is
+cheap but unsafe; strict validity reuse saves test cost without the same stale
+witness failure.}
+\label{tab:cache}
+\end{table}
+
+This is a semantic point, not only an engineering detail.  A witness is not a
+fact about an object name.  It is evidence about a relation under specified
+conditions.  Caching is safe when those conditions are explicit.  It is unsafe
+when it silently collapses back into a label prior.
+
+\section{Noise, Bias, and Guard Design}
+
+The simplest version of EATL can sound oracle-like: run the test, observe the
+truth.  Family E attacks that assumption by sweeping probe observation noise
+from 0 to 0.25 and comparing guard designs.  Figure~\ref{fig:noise} and Table
+\ref{tab:noise} show that crisp one-shot guards degrade quickly.  At noise
+0.12, the crisp guard has 0.104 unsafe false positives.  Repeating the test
+three times reduces that to 0.036 at triple test cost.  A Bayesian-style guard
+has very low unsafe false positives but abstains more and pays five-test cost.
+Margin guards reduce unsafe false positives relative to crisp guards but
+increase abstention.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{../figures/full_scale/noise_guard_unsafe.pdf}
+\caption{Probe-noise stress.  Repeated and abstaining guards reduce unsafe
+assertions under noise, but they pay either test cost or coverage cost.}
+\label{fig:noise}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{noise_guard_table.tex}}
+\caption{Selected guard-design results under label-preserving flips.}
+\label{tab:noise}
+\end{table}
+
+This family prevents a misleading reading of the positive result.  Executable
+evidence is only as good as the guard and sensor model.  A deployable system
+would need calibrated sensors, repeated probing when justified, and abstention
+when the trace lies near the decision boundary.
+
+\section{Passive Visibility Ladder}
+
+The passive baseline in v2 was intentionally simple.  A reviewer could object
+that a stronger vision-language model might infer holes, materials, and damage.
+Family F gives passive systems progressively more visibility: label only,
+geometry only, geometry plus material, geometry plus damage, a VLM-like blend of
+label and visible variables, and a full noisy hidden-state proxy.  Figure
+\ref{fig:visibility} and Table~\ref{tab:visibility} show that more visibility
+helps substantially.  In adversarial counterfeits, label-only unsafe false
+positives are 0.194, geometry-only is 0.238, geometry plus material is 0.144,
+geometry plus damage is 0.141, and the VLM-like blend is 0.127.  A full noisy
+hidden-state proxy reaches 0.000 unsafe false positives in this synthetic
+setting.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{../figures/full_scale/visibility_ladder.pdf}
+\caption{Passive visibility ladder on adversarial counterfeits.  Better passive
+visibility narrows the gap, and full observation can solve the synthetic task.
+EATL is most useful when the deciding variables are hidden, stale, or
+demand-specific.}
+\label{fig:visibility}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{visibility_ladder_table.tex}}
+\caption{Visibility ladder for passive systems.  The result narrows the claim:
+executable tests are not needed when passive sensing already observes the
+deciding physical variables reliably.}
+\label{tab:visibility}
+\end{table}
+
+This is an important negative control.  EATL should not claim superiority over
+a sensor that directly observes the relevant causal variables.  Its value is in
+the cases where the variable is unobserved, ambiguous, stale, demand-specific,
+or too consequential to trust as a category prior.
+
+\section{Demand and Embodiment Shift}
+
+Affordances are not object properties alone.  A container that is safe for
+100ml may fail for 750ml.  A box that supports 300g may fail at 1600g.  A mug
+that is safe for one robot can be unsafe for a weaker or hotter-contact
+embodiment.  Family G sweeps liquid volume, load, temperature, grip force, and
+robot embodiment.  The selected rows in Table~\ref{tab:demand} show the pattern:
+risk-aware EATL remains low in unsafe false positives because the test is tied
+to the current demand and robot, while label and passive systems often transfer
+an old category-level belief across a changed physical question.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{demand_embodiment_table.tex}}
+\caption{Selected demand and embodiment shift rows.  The same object label can
+change truth value as volume, load, temperature, grip force, or robot body
+changes.}
+\label{tab:demand}
+\end{table}
+
+The lesson is not that demand sweeps are exotic.  They are the normal form of a
+robot affordance claim.  A predicate such as \texttt{can-support-load} is
+incomplete until the load and robot are specified.  A cached witness that omits
+the demand is not a full witness.
+
+\section{Failure Gallery}
+
+The failure gallery in Table~\ref{tab:gallery} is not meant as qualitative
+hardware evidence.  It is a compact audit trail.  The examples show unsafe
+false positives, avoidable false negatives, abstentions, saved tests, and
+irrelevant-test failures.  They make the synthetic mechanism inspectable: a row
+contains the object, task, method, decision, witness text, demand, robot, and
+hidden state.  This is useful for reviewers because it exposes exactly what the
+benchmark is and is not testing.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\resizebox{\linewidth}{!}{\input{failure_gallery_table.tex}}
+\caption{Representative failure-gallery rows.  The full CSV records bounded
+examples from the main family.}
+\label{tab:gallery}
 \end{table}
 
 \section{Discussion}
 
-The result changes the central mechanism.  If common sense is a prior, then the
-natural repair is a larger model, more data, uncertainty, or a verifier.  If
-common sense is executable, the repair is different: define the predicate by
-the physical evidence that would make it true for this robot and this demand.
-That is why the proposed mechanism is not a new benchmark alone.  The hostile
-benchmark exists to expose the assumption, but the contribution is the
-operational semantics.
+The main conceptual shift is from facts to evidence.  A text prior says a mug
+usually contains liquid.  An EATL witness says this object, with this robot, for
+this demanded volume, passed a diagnostic relation that licenses the predicate.
+The difference matters because many robot errors are not caused by ignorance of
+ordinary object categories; they are caused by ordinary categories hiding
+changed physics.
 
-EATL also changes how failures are represented.  A failed pour probe is not
-just a low confidence score; it is a certificate that the current object does
-not satisfy the containment predicate for the demanded volume.  This is useful
-for planners because the failure is local, typed, and reusable until the object
-state changes.
+The second shift is from confidence to certificate.  A failed test is not merely
+a lower probability.  It is a local reason the planner can use: this container
+leaks, this support cannot carry the demanded load, this edge is too dull, this
+grasp would crush the object.  Such certificates can support recovery, object
+substitution, user queries, or cache invalidation.
+
+The third shift is that testing must be selected.  The phase diagram shows
+regions where text or conservative priors are cheaper.  The cache experiment
+shows that reuse can be beneficial.  The visibility ladder shows that passive
+sensing can close the gap when it sees the deciding variable.  The noise sweep
+shows that tests require robust guards.  These are not problems for the
+semantics; they are requirements for implementing it honestly.
 
 \section{Limitations}
 
-This paper does not show real-robot performance.  The tests are hand-specified,
-the cost model is simplified, and the synthetic environment assumes the test
-observes sufficient causal variables with independent noise.  Some predicates
-may require destructive tests, long-horizon interaction, or specialized
-sensors.  The v2 stress makes this limitation measurable: if the diagnostic
-action itself is risky enough, testing can lose on safety-plus-cost even when it
-reduces unsafe false positives.  Passive perception and large multimodal models
-can also solve many cases when the relevant variable is visible.  The claim is
-therefore not that EATL replaces perception, planning, or learned affordance
-models.  The claim is that an embodied common-sense assertion should be treated
-as unsupported until the robot has executable evidence for the current physical
-relation, provided that the evidence can be obtained safely enough for the task
-context.
+The most important limitation is that the evidence is synthetic.  There is no
+real robot, no tactile sensor, no photorealistic simulator, and no learned test
+program.  The environment is a transparent mechanism test, not a deployment
+benchmark.  The paper should be read as evidence that a field assumption is
+dangerous, not as evidence that a particular robot system is ready.
+
+The second limitation is that the tests are hand-specified.  In practice,
+micro-policies and guards would need to be learned, synthesized, verified, or
+calibrated for the robot and sensor suite.  Some tests are destructive or
+expensive.  A thermal test, load test, or crushing test can change the object.
+The phase diagram and noise experiments make this limitation explicit, but they
+do not solve it.
+
+The third limitation is that the cost model is simplified.  False positives,
+false negatives, test costs, abstentions, and sensor errors are represented by
+normalized synthetic costs.  Real deployments need task-specific harm models,
+human preferences, legal constraints, and repair costs.
+
+The fourth limitation is that the formal results are simple.  The label-only
+bound does not apply to all multimodal systems.  A passive system that observes
+all relevant hidden variables can solve the synthetic task, as the visibility
+ladder confirms.  The novelty claim is therefore not that EATL beats every
+model, but that embodied common-sense assertions should be tied to executable
+evidence and validity conditions.
 
 \section{Conclusion}
 
-Robots fail when familiar words hide changed physics.  We proposed EATL, a
-semantics in which common-sense affordance predicates are certified by cheap
-robot-specific tests rather than inherited from text priors.  A simple lower
-bound shows why label-only priors cannot solve label-preserving affordance
-flips, and a runnable synthetic stress test demonstrates the safety effect on
-containment, lifting, support, cutting, wiping, and hot carrying.  The next step
-is to learn or synthesize test programs and evaluate them on real robot
-manipulation tasks with explicit test cost and failure risk.
+Robots fail when familiar words hide changed physics.  We proposed Executable
+Affordance Test Logic, a semantics in which robotic common-sense predicates are
+licensed by executable witnesses rather than object names alone.  The v3
+full-scale synthetic evaluation shows that risk-aware executable witnesses
+reduce unsafe false positives under hidden same-name changes, adversarial
+counterfeits, demand shifts, and embodiment shifts.  It also shows the
+boundary: when probes are expensive, hidden flips are rare, caches are stale, or
+passive sensing observes the deciding variables, testing can be unnecessary or
+unsafe.  The next step is to learn or synthesize executable tests and evaluate
+them on real robot manipulation tasks with measured test costs, calibrated
+guards, and explicit witness validity.
 
 \subsubsection*{Reproducibility Statement}
-The repository contains the literature builder, synthetic environment, episode
-logs, summary CSV, and table-generation script.  The main experiment is
-reproduced with:
+The v3 full-scale evidence is reproduced with:
 \begin{verbatim}
-python experiments/affordance_tests.py
-python scripts/write_paper_assets.py
+python experiments/full_scale_affordance_tests.py
+python scripts/render_full_scale_figures.py
+powershell -ExecutionPolicy Bypass -File scripts/build_pdf.ps1
 \end{verbatim}
-The v2 stress table is generated from \texttt{results/test\_cost\_stress.csv}.
-The literature sweep is reproduced with \texttt{python scripts/build\_literature.py};
-OpenAlex rate limiting during this run was recovered using Crossref and arXiv
-metadata, as recorded in \texttt{data/literature\_progress.json}.
+The runner writes aggregate CSVs to \texttt{results/full\_scale/}, LaTeX tables
+to \texttt{paper/}, and figures to \texttt{figures/full\_scale/}.  The v3 run
+completed in 437.075 seconds, used deterministic seed families 28001--28612,
+and retained aggregate counters rather than full raw logs.  The older v2
+experiment remains reproducible with \texttt{python experiments/affordance\_tests.py}
+and \texttt{python scripts/write\_paper\_assets.py}.
 
 \bibliography{references}
 \bibliographystyle{iclr2026_conference}
+
+\appendix
+
+\section{Appendix A: Predicate Semantics}
+
+This appendix expands the semantics used in the main text.  The point is to
+avoid a common ambiguity: an affordance can be a possible action, a perceived
+cue, a predicted success probability, a symbolic precondition, or a planner
+feasibility check.  EATL uses the word in a narrower operational sense.  A robot
+may assert an affordance predicate only when it has an executable witness whose
+validity scope covers the current tuple.
+
+\paragraph{Pass, fail, and abstain.}
+A pass trace is evidence for an assertion.  A fail trace is a certificate
+against assertion.  An abstain trace is a refusal to license either direction.
+Abstention is needed because some tests are too noisy, too expensive, or too
+dangerous.  In the synthetic experiments, abstention appears most clearly in
+the conservative prior and margin or Bayesian guards.  In a real system,
+abstention would trigger escalation: ask a human, choose a safer object, select
+a different skill, or run a more expensive test.
+
+\paragraph{Validity scope.}
+A witness is scoped by object state, robot embodiment, task demand, and time.
+If a mug passes a 200ml containment test, the witness does not automatically
+license a 750ml pour.  If a gripper changes, a lift witness may expire.  If a
+box gets wet, a support-load witness may expire.  The cache experiment is built
+around this rule.  Strict validity reuse saves cost; label-only reuse collapses
+back into the mistake EATL was meant to avoid.
+
+\paragraph{Failure certificates.}
+Failure certificates are useful because they are local.  A failed
+\texttt{can-contain-liquid} witness does not imply that the object cannot be
+lifted or stacked.  It says the object did not satisfy a particular predicate
+under a particular demand.  This local structure lets a planner replace only the
+failed relation rather than discarding a whole plan.
+
+\section{Appendix B: Environment Details}
+
+Each object instance is represented by a small vector of physical variables.
+The variables are not intended to be complete physics; they are chosen to make
+the benchmark inspectable.  The hidden variables include:
+
+\begin{itemize}
+\item containment variables: concavity, porosity, holes, capacity, pour lip,
+and stability;
+\item manipulation variables: mass, friction, grippability, crush limit, and
+surface fragility;
+\item tool variables: sharpness, edge stiffness, absorbency, heat resistance,
+and handle availability;
+\item support variables: load capacity, flat top, stable base, wetness, and
+degradation.
+\end{itemize}
+
+Ground-truth predicates are deterministic threshold functions.  For example,
+containment requires concavity, no hole, non-porosity, capacity above demanded
+volume, and a stable base.  Support requires load capacity above the demanded
+load, a stable base, and a flat top.  Grasp-without-crushing requires that the
+object be grippable, within the robot's gripper limit, below the surface
+fragility threshold, and above the demanded crush-force margin.
+
+\paragraph{Why deterministic truth is acceptable here.}
+The paper is not estimating real-world success probabilities.  It is isolating
+a representation failure: labels can remain fixed while causal variables
+change.  Deterministic truth makes the failure mode inspectable.  Noise is then
+introduced in the test observations and guard policies rather than hidden
+inside the ground-truth simulator.
+
+\paragraph{Regime construction.}
+The label-preserving flip regime samples hidden mutations such as adding a hole,
+making an object porous, dulling an edge, increasing mass, reducing load
+capacity, removing heat resistance, eliminating absorbency, removing a pour lip,
+lowering crush limit, or destabilizing the base.  The adversarial counterfeit
+regime chooses mutations that specifically target a predicate that the label
+prior believes is true.  The task-demand regime changes the question rather
+than the object.  The embodiment regime changes robot limits.
+
+\section{Appendix C: Method Details}
+
+\paragraph{Text prior.}
+The text prior is derived from the typical object catalog.  If the typical mug
+contains liquid, the prior asserts containment for all mugs.  This makes it
+strong on typical objects and vulnerable under same-name hidden changes.
+
+\paragraph{Calibrated text prior.}
+The calibrated text prior weakens confidence in hostile regimes.  It can abstain
+near its boundary.  This baseline addresses the objection that no reasonable
+system would use an uncalibrated label prior in a known hostile setting.
+
+\paragraph{Passive and uncertainty-aware vision proxies.}
+The passive proxy observes geometry-like variables: concavity, flatness,
+stability, and approximate mass.  It misses hidden material, holes, damage, and
+demand-specific safety margins.  The uncertainty-aware version also abstains
+when its score lies near the boundary.  Family F gives passive systems more
+visibility to show where EATL is and is not needed.
+
+\paragraph{Conservative prior.}
+The conservative prior asserts only high-confidence, low-consequence positive
+predicates, rejects confident negatives, and abstains otherwise.  It is a strong
+safety baseline because it can reduce unsafe false positives by refusing to act.
+Its weakness is coverage and avoidable false negatives.
+
+\paragraph{Eager EATL.}
+Eager EATL always runs the task-specific test and uses the noisy test result.
+It is useful as a mechanism upper baseline, but it can be dominated when hidden
+flips are rare or tests are costly.
+
+\paragraph{Risk-aware EATL.}
+Risk-aware EATL blends label and visible evidence, estimates the expected harm
+of assertion or rejection, compares the value of testing to test cost, and runs
+the test only when it appears worthwhile.  It is not globally optimal; it is a
+simple selector designed to expose the difference between executable evidence
+and eager evidence gathering.
+
+\paragraph{Cached EATL.}
+Cached EATL stores strict witnesses keyed by current state, task demand, and
+robot embodiment.  The separate cache family compares this strict reuse against
+label-only, time-to-live, and demand-compatible reuse.
+
+\section{Appendix D: Additional Tables}
+
+\subsection{D.1 Main Task-Level Outputs}
+
+The repository contains \texttt{results/full\_scale/main\_task\_summary.csv}
+with per-task, per-regime, per-method aggregates.  Those rows are not all
+included in the PDF because they are too large for readable page layout, but
+they are used to audit whether the main effects come from one predicate.  The
+pattern is broad: label priors fail most sharply for containment, hot carrying,
+pouring, and crushing, while passive geometry has particular trouble with
+material and damage variables.
+
+\subsection{D.2 Demand and Embodiment Table}
+
+Table~\ref{tab:demand} in the main text shows selected demand and embodiment
+rows.  The full CSV includes 648 seed-summary rows and 129,600 method decisions.
+The most useful interpretation is that demand is part of the predicate.  A
+single object label cannot define a support-load, containment, or thermal
+affordance without the demanded quantity.
+
+\subsection{D.3 Failure Gallery}
+
+The failure gallery CSV stores bounded representative examples rather than full
+raw logs.  This keeps memory and repository size under control while preserving
+inspectability.  A reviewer can trace a reported false positive to an object
+state and witness string.
+
+\section{Appendix E: Full Experiment Accounting}
+
+The aggregate decision counts are:
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Family & Seed-summary rows & Method decisions \\
+\midrule
+Main benchmark & 960 & 1,920,000 \\
+Phase diagram & 3,360 & 2,016,000 \\
+Selector ablation & 168 & 268,800 \\
+Cache validity & 40 & 240,000 \\
+Noise and guard design & 192 & 230,400 \\
+Visibility ladder & 108 & 172,800 \\
+Demand and embodiment & 648 & 129,600 \\
+\midrule
+Total & 5,476 & 4,977,600 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The runner uses deterministic seeds and writes seed-level summaries before
+aggregate summaries.  Means and standard errors are computed across seeds.  Raw
+case rows are not retained for the full benchmark because they would be large
+and unnecessary for the reported metrics.  Instead, bounded representative
+examples are written to the failure gallery.
+
+\section{Appendix F: Complete V3 Result Tables}
+
+The main text includes compact tables for readability.  This appendix includes
+larger result grids generated directly from the v3 CSV outputs.  They are not
+additional claims; they are audit material for checking whether a result is
+concentrated in one regime, task, or cost setting.
+
+\subsection{F.1 Full Main Benchmark}
+
+\begingroup
+\scriptsize
+\input{full_main_appendix_table.tex}
+\endgroup
+
+\subsection{F.2 Task-Level Breakdown}
+
+The task-level table covers four hostile or shifting regimes and six main
+methods.  It is useful for seeing which predicates drive the main effect.  The
+unsafe assertion failures are broad rather than confined to one predicate:
+containment, pouring, hot carrying, support, and crushing all expose cases where
+labels and passive geometry are insufficient.
+
+\begingroup
+\tiny
+\input{task_breakdown_appendix_table.tex}
+\endgroup
+
+\subsection{F.3 Phase Grid}
+
+The phase grid lists all failure-harm 5 and 10 cells from the phase-boundary
+sweep.  It is the most direct evidence that the v3 claim is conditional.  When
+the hidden-flip rate is low and test harm is high, text or conservative priors
+can be best.  As hidden flips become common, risk-aware EATL dominates because
+unsafe assertions become expensive.
+
+\begingroup
+\scriptsize
+\input{phase_grid_appendix_table.tex}
+\endgroup
+
+\subsection{F.4 Demand and Embodiment Grid}
+
+The demand grid shows the same predicate under changed volumes, loads,
+temperatures, grip forces, and robot bodies.  These rows support the semantic
+choice to include demand and embodiment inside the predicate tuple.
+
+\begingroup
+\tiny
+\input{demand_full_appendix_table.tex}
+\endgroup
+
+\subsection{F.5 Extended Failure Gallery}
+
+The gallery is an audit sample from bounded examples, not a substitute for
+hardware.  Its role is to expose the hidden state and witness text behind
+aggregate metrics.
+
+\begingroup
+\tiny
+\input{failure_gallery_appendix_table.tex}
+\endgroup
+
+\section{Appendix G: Hostile Reviewer Checklist}
+
+\paragraph{Is this just affordance learning?}
+No.  Affordance learning predicts action possibilities.  EATL specifies when a
+robot may assert a common-sense affordance predicate.  A learned affordance
+model can implement or propose tests, but a prediction without a valid witness
+is not the same semantic object.
+
+\paragraph{Is this just active sensing?}
+Active sensing chooses measurements to reduce uncertainty.  EATL can use active
+sensing as a test implementation, but the paper's claim is about the meaning of
+the predicate and the witness/certificate interface.  The phase diagram and
+selector ablation explicitly treat measurement choice as a cost-aware problem.
+
+\paragraph{Is the evaluation too synthetic?}
+Yes for a deployable-system claim; no for the mechanism claim.  The paper is
+honest that real-robot evaluation is missing.  The synthetic environment is used
+because it exposes hidden same-label physical changes with exact ground truth
+and reproducible stress controls.
+
+\paragraph{Could a better VLM solve this?}
+Sometimes.  The visibility ladder shows that full noisy hidden-state visibility
+solves the synthetic task.  That is a boundary, not a contradiction.  EATL is
+most relevant when the deciding variable is hidden, stale, demand-specific, or
+too consequential to trust as a category prior.
+
+\paragraph{Are tests always safe?}
+No.  Some tests are costly, damaging, or risky.  The cost threshold and phase
+diagram are included precisely to prevent that overclaim.
+
+\section{Appendix H: Pseudocode}
+
+\begin{verbatim}
+for each candidate predicate phi(r, o, a, d):
+    prior = estimate_from_label_and_passive_obs(phi, r, o, d)
+    if valid_cached_witness_exists(phi, r, o, d):
+        return ASSERT with cached witness
+    harm = expected_harm_without_test(prior)
+    probe_cost = test_cost(phi, r, o, d)
+    if harm <= probe_cost:
+        if prior is confidently safe under accepted risk:
+            return ASSERT_UNSUPPORTED_RISK
+        if prior is confidently unsafe:
+            return REJECT
+        return ABSTAIN
+    trace = run_micro_test(phi, r, o, d)
+    if guard(trace) == PASS:
+        store witness with validity scope
+        return ASSERT with witness
+    if guard(trace) == FAIL:
+        store failure certificate
+        return REJECT with certificate
+    return ABSTAIN with trace
+\end{verbatim}
+
+The pseudocode makes the distinction between a semantic license and a policy.
+EATL says assertions need witnesses or explicit unsupported-risk status.  The
+selector decides whether to obtain, reuse, or decline evidence.
 
 \end{document}

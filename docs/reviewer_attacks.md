@@ -1,48 +1,48 @@
 # Reviewer Attacks
 
-## Attack 1: This is just affordance learning.
-Response: affordance learning predicts labels or effects. EATL defines the
-truth condition of a commonsense predicate by an executable micro-experiment and
-requires a witness for the current robot-object-demand tuple.
+## Attack: This Is Just Affordance Learning
 
-## Attack 2: This is just a verifier.
-Response: a verifier usually checks a proposed plan state or rescores a model
-output. EATL is pre-action predicate semantics: the robot obtains physical
-evidence before the dangerous task action, and failure certificates are first
-class outputs.
+Response: affordance learning predicts action possibilities.  EATL defines when
+a robot may assert an embodied common-sense predicate.  A learned affordance
+model can implement tests or priors, but it is not the same as a witness,
+failure certificate, abstention, and validity scope.
 
-## Attack 3: This is active sensing with a new name.
-Response: active sensing chooses measurements to reduce uncertainty. EATL can
-use active sensing, but the contribution is the operational definition of
-common-sense predicates and the lower-bound argument against label-only priors.
+## Attack: This Is Just Active Sensing
 
-## Attack 4: The experiments are synthetic.
-Response: correct. The evidence is an executable stress test that isolates the
-assumption break. The claim should be revised before main-conference submission
-unless a real robot or high-fidelity simulator evaluation is added.
+Response: active sensing chooses measurements.  EATL can use active sensing, but
+the paper's main object is the semantic license for an assertion.  The v3 phase
+diagram and selector ablation explicitly treat measurement selection as a
+cost-aware policy problem.
 
-## Attack 5: A large VLM could inspect the hole, dull edge, or wetness.
-Response: if the variable is visually available, perception can help. The claim
-targets hidden or causally ambiguous state and same-label counterexamples where
-the deciding variable is only exposed by action-sensor tests.
+## Attack: The Evaluation Is Synthetic
 
-## Attack 6: TAMP already has preconditions and feasibility checks.
-Response: TAMP preconditions are planner machinery. EATL is a semantics for
-embodied commonsense assertions and includes object-name adversaries,
-task-demand parameters, witness traces, and safety-weighted predicate errors.
+Response: correct.  The paper does not claim real-robot deployment.  The
+synthetic environment isolates same-label hidden physical changes and makes the
+failure mechanism inspectable.  The readiness decision remains strong-revise
+for venues that require hardware.
 
-## Attack 7: Hand-written tests do not scale.
-Response: true as a limitation. The paper argues for the semantic object and
-demonstrates why it matters; learning or synthesizing test programs is future
-work.
+## Attack: A Strong VLM Could Infer The Hidden Variable
 
-## Attack 8: The theorem is too simple.
-Response: it is deliberately simple: the goal is to make the broken assumption
-unavoidable. If the only input is a label and labels are decoupled from
-affordance, no amount of text prior can recover hidden causal state.
+Response: sometimes.  The visibility ladder shows that full noisy hidden-state
+visibility solves the synthetic task.  EATL is most useful when the deciding
+variable is hidden, stale, demand-specific, or too consequential to trust as a
+category prior.
 
-## Attack 9: The tests themselves can be costly or damaging.
-Response: agreed. The v2 stress computes unsafe false positives plus normalized
-test harm. Under label-preserving flips, EATL breaks even with the text prior at
-test-harm weight 1.176 and loses at weight 1.25. The paper now claims EATL only
-for probes that are cheap/safe relative to the prevented task failure.
+## Attack: Tests Can Be Dangerous
+
+Response: agreed.  The cost-aware proposition and phase diagram make this a
+central boundary.  EATL is not "always test"; it is "do not assert without
+licensed evidence or explicit unsupported-risk status."
+
+## Attack: Cached Tests Become Stale
+
+Response: agreed.  The cache experiment shows label-only reuse has 0.270 unsafe
+false positives, while strict validity reuse preserves accuracy and reduces
+test cost.
+
+## Attack: The Paper Is Too Long For A Simple Idea
+
+Response: the length is now driven by real stress evidence: main benchmark,
+phase diagram, ablations, cache validity, noise, visibility, demand/embodiment,
+failure cases, and full appendix tables.  The extra pages document scope and
+failure boundaries rather than padding.

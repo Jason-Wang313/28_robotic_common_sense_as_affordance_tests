@@ -1,0 +1,98 @@
+\begin{longtable}{llrrrrrr}
+\toprule
+Regime & Method & Acc. & Unsafe FP & FN & Abstain & Test & Total \\
+\midrule
+\endfirsthead
+\toprule
+Regime & Method & Acc. & Unsafe FP & FN & Abstain & Test & Total \\
+\midrule
+\endhead
+typical & text prior & 0.994 & 0.004 & 0.002 & 0.000 & 0.000 & 0.024 \\
+typical & calibrated text prior & 0.994 & 0.004 & 0.002 & 0.000 & 0.000 & 0.024 \\
+typical & passive vision proxy & 0.823 & 0.177 & 0.000 & 0.000 & 0.000 & 0.883 \\
+typical & uncertainty vision proxy & 0.823 & 0.090 & 0.000 & 0.087 & 0.000 & 0.463 \\
+typical & conservative prior & 0.849 & 0.004 & 0.002 & 0.145 & 0.000 & 0.045 \\
+typical & eager eatl & 0.975 & 0.016 & 0.009 & 0.000 & 0.102 & 0.189 \\
+typical & risk aware eatl & 0.987 & 0.005 & 0.008 & 0.000 & 0.055 & 0.087 \\
+typical & cached eatl & 0.974 & 0.017 & 0.009 & 0.000 & 0.102 & 0.193 \\
+typical & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+typical & random test control & 0.499 & 0.338 & 0.163 & 0.000 & 0.066 & 1.853 \\
+\midrule
+label preserving flips & text prior & 0.810 & 0.188 & 0.002 & 0.000 & 0.000 & 0.940 \\
+label preserving flips & calibrated text prior & 0.810 & 0.188 & 0.002 & 0.000 & 0.000 & 0.940 \\
+label preserving flips & passive vision proxy & 0.788 & 0.212 & 0.000 & 0.000 & 0.000 & 1.059 \\
+label preserving flips & uncertainty vision proxy & 0.788 & 0.100 & 0.000 & 0.111 & 0.000 & 0.519 \\
+label preserving flips & conservative prior & 0.739 & 0.113 & 0.002 & 0.145 & 0.000 & 0.590 \\
+label preserving flips & eager eatl & 0.975 & 0.022 & 0.004 & 0.000 & 0.102 & 0.213 \\
+label preserving flips & risk aware eatl & 0.981 & 0.015 & 0.004 & 0.000 & 0.070 & 0.150 \\
+label preserving flips & cached eatl & 0.974 & 0.022 & 0.004 & 0.000 & 0.101 & 0.216 \\
+label preserving flips & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+label preserving flips & random test control & 0.498 & 0.429 & 0.072 & 0.000 & 0.066 & 2.256 \\
+\midrule
+label swap & text prior & 0.669 & 0.166 & 0.165 & 0.000 & 0.000 & 0.929 \\
+label swap & calibrated text prior & 0.669 & 0.166 & 0.165 & 0.000 & 0.000 & 0.929 \\
+label swap & passive vision proxy & 0.826 & 0.174 & 0.000 & 0.000 & 0.000 & 0.873 \\
+label swap & uncertainty vision proxy & 0.826 & 0.089 & 0.000 & 0.086 & 0.000 & 0.456 \\
+label swap & conservative prior & 0.618 & 0.073 & 0.165 & 0.145 & 0.000 & 0.484 \\
+label swap & eager eatl & 0.973 & 0.018 & 0.009 & 0.000 & 0.102 & 0.196 \\
+label swap & risk aware eatl & 0.985 & 0.008 & 0.008 & 0.000 & 0.065 & 0.107 \\
+label swap & cached eatl & 0.974 & 0.017 & 0.009 & 0.000 & 0.082 & 0.173 \\
+label swap & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+label swap & random test control & 0.496 & 0.340 & 0.164 & 0.000 & 0.066 & 1.864 \\
+\midrule
+mixed & text prior & 0.821 & 0.121 & 0.058 & 0.000 & 0.000 & 0.639 \\
+mixed & calibrated text prior & 0.821 & 0.121 & 0.058 & 0.000 & 0.000 & 0.639 \\
+mixed & passive vision proxy & 0.810 & 0.190 & 0.000 & 0.000 & 0.000 & 0.952 \\
+mixed & uncertainty vision proxy & 0.810 & 0.093 & 0.000 & 0.097 & 0.000 & 0.480 \\
+mixed & conservative prior & 0.732 & 0.065 & 0.058 & 0.145 & 0.000 & 0.381 \\
+mixed & eager eatl & 0.974 & 0.019 & 0.007 & 0.000 & 0.102 & 0.202 \\
+mixed & risk aware eatl & 0.984 & 0.009 & 0.007 & 0.000 & 0.058 & 0.109 \\
+mixed & cached eatl & 0.973 & 0.020 & 0.007 & 0.000 & 0.086 & 0.191 \\
+mixed & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+mixed & random test control & 0.497 & 0.372 & 0.132 & 0.000 & 0.066 & 2.004 \\
+\midrule
+adversarial counterfeit & text prior & 0.800 & 0.197 & 0.002 & 0.000 & 0.000 & 0.988 \\
+adversarial counterfeit & calibrated text prior & 0.800 & 0.197 & 0.002 & 0.000 & 0.000 & 0.988 \\
+adversarial counterfeit & passive vision proxy & 0.760 & 0.240 & 0.000 & 0.000 & 0.000 & 1.201 \\
+adversarial counterfeit & uncertainty vision proxy & 0.760 & 0.107 & 0.000 & 0.133 & 0.000 & 0.554 \\
+adversarial counterfeit & conservative prior & 0.739 & 0.114 & 0.002 & 0.145 & 0.000 & 0.594 \\
+adversarial counterfeit & eager eatl & 0.958 & 0.037 & 0.006 & 0.000 & 0.102 & 0.288 \\
+adversarial counterfeit & risk aware eatl & 0.970 & 0.025 & 0.005 & 0.000 & 0.078 & 0.205 \\
+adversarial counterfeit & cached eatl & 0.957 & 0.038 & 0.005 & 0.000 & 0.088 & 0.281 \\
+adversarial counterfeit & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+adversarial counterfeit & random test control & 0.505 & 0.431 & 0.064 & 0.000 & 0.066 & 2.260 \\
+\midrule
+degraded worn & text prior & 0.849 & 0.151 & 0.000 & 0.000 & 0.000 & 0.757 \\
+degraded worn & calibrated text prior & 0.849 & 0.151 & 0.000 & 0.000 & 0.000 & 0.757 \\
+degraded worn & passive vision proxy & 0.758 & 0.242 & 0.000 & 0.000 & 0.000 & 1.209 \\
+degraded worn & uncertainty vision proxy & 0.758 & 0.092 & 0.000 & 0.150 & 0.000 & 0.482 \\
+degraded worn & conservative prior & 0.752 & 0.103 & 0.000 & 0.145 & 0.000 & 0.535 \\
+degraded worn & eager eatl & 0.957 & 0.035 & 0.007 & 0.000 & 0.102 & 0.282 \\
+degraded worn & risk aware eatl & 0.971 & 0.021 & 0.007 & 0.000 & 0.071 & 0.183 \\
+degraded worn & cached eatl & 0.960 & 0.034 & 0.007 & 0.000 & 0.102 & 0.274 \\
+degraded worn & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+degraded worn & random test control & 0.497 & 0.415 & 0.087 & 0.000 & 0.066 & 2.195 \\
+\midrule
+task demand shift & text prior & 0.922 & 0.057 & 0.021 & 0.000 & 0.000 & 0.296 \\
+task demand shift & calibrated text prior & 0.922 & 0.057 & 0.021 & 0.000 & 0.000 & 0.296 \\
+task demand shift & passive vision proxy & 0.814 & 0.186 & 0.000 & 0.000 & 0.000 & 0.931 \\
+task demand shift & uncertainty vision proxy & 0.814 & 0.106 & 0.000 & 0.080 & 0.000 & 0.542 \\
+task demand shift & conservative prior & 0.816 & 0.018 & 0.021 & 0.145 & 0.000 & 0.123 \\
+task demand shift & eager eatl & 0.973 & 0.019 & 0.008 & 0.000 & 0.106 & 0.206 \\
+task demand shift & risk aware eatl & 0.985 & 0.007 & 0.008 & 0.000 & 0.057 & 0.097 \\
+task demand shift & cached eatl & 0.974 & 0.019 & 0.007 & 0.000 & 0.106 & 0.205 \\
+task demand shift & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+task demand shift & random test control & 0.500 & 0.353 & 0.147 & 0.000 & 0.069 & 1.924 \\
+\midrule
+embodiment shift & text prior & 0.963 & 0.035 & 0.003 & 0.000 & 0.000 & 0.175 \\
+embodiment shift & calibrated text prior & 0.963 & 0.035 & 0.003 & 0.000 & 0.000 & 0.175 \\
+embodiment shift & passive vision proxy & 0.801 & 0.199 & 0.000 & 0.000 & 0.000 & 0.995 \\
+embodiment shift & uncertainty vision proxy & 0.801 & 0.106 & 0.000 & 0.093 & 0.000 & 0.545 \\
+embodiment shift & conservative prior & 0.838 & 0.015 & 0.003 & 0.145 & 0.000 & 0.098 \\
+embodiment shift & eager eatl & 0.952 & 0.034 & 0.014 & 0.000 & 0.102 & 0.280 \\
+embodiment shift & risk aware eatl & 0.975 & 0.012 & 0.013 & 0.000 & 0.056 & 0.124 \\
+embodiment shift & cached eatl & 0.955 & 0.032 & 0.013 & 0.000 & 0.102 & 0.270 \\
+embodiment shift & oracle hidden state & 1.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+embodiment shift & random test control & 0.497 & 0.356 & 0.147 & 0.000 & 0.066 & 1.936 \\
+\bottomrule
+\end{longtable}

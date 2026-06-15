@@ -1,38 +1,58 @@
 # Child Status: Paper 28
 
-Stage: complete; v2 submission hardening ready to commit and push
+Stage: v3 final full-scale complete, exported, verified, ready to commit/push
 
 Current facts:
-- Literature sweep completed with `docs/related_work_matrix.csv` containing 1000 rows and `docs/hostile_prior_work.md` containing 100 hostile priors.
-- Main experiment generated 1000 episodes and 180000 method-task rows.
-- Main label-preserving flip result: EATL accuracy 0.9715 and unsafe false-positive rate 0.0218 versus text-prior accuracy 0.8337 and unsafe false-positive rate 0.1335.
-- V2 test-cost stress generated `results/test_cost_stress.csv` and `paper/test_cost_stress_table.tex`.
-- V2 stress result: under label-preserving flips, EATL breaks even with the text prior at normalized test-harm weight 1.176 and loses at weight 1.25 on safety-plus-test-cost.
-- Paper generated at `paper/main.tex` with visible v2 note, stress table, narrowed abstract, and narrowed limitations.
-- LaTeX build completed with `scripts/build_pdf.ps1`.
-- Final PDF copied to `C:/Users/wangz/Downloads/28.pdf`.
-- Transient `paper/main.pdf` removed so the final PDF exists only at the required Downloads path.
-- Checked Desktop paths contain no `28.pdf`.
-- Public GitHub repo exists: `https://github.com/Jason-Wang313/28_robotic_common_sense_as_affordance_tests`.
-- `docs/final_audit.md` exists and reports build status, v2 stress evidence, Downloads-only artifact status, Desktop absence, and local PDF absence.
 
-Commands run:
-- `python experiments\affordance_tests.py`
-- `python scripts\write_paper_assets.py`
-- `powershell -ExecutionPolicy Bypass -File scripts\build_pdf.ps1`
-- Safe probes for build status, Downloads PDF, Desktop absence, local PDF absence, LaTeX log status, and generated stress outputs.
+- Title: `Robotic Common Sense as Executable Affordance Tests`.
+- v3 plan was written before substantive work in
+  `docs/full_scale_execution_plan.md`.
+- Full-scale runner: `experiments/full_scale_affordance_tests.py`.
+- Figure renderer: `scripts/render_full_scale_figures.py`.
+- Appendix table generator: `scripts/write_full_scale_appendix_tables.py`.
+- Main benchmark: 192,000 robot-object-task cases and 1,920,000 method
+  decisions.
+- Full aggregate suite: 4,977,600 method decisions.
+- Full-scale run elapsed time: 437.075 seconds.
+- Label-preserving flips: text prior unsafe FP 0.188, eager EATL 0.022,
+  risk-aware EATL 0.015.
+- Adversarial counterfeits: text prior unsafe FP 0.197, passive vision 0.240,
+  eager EATL 0.037, risk-aware EATL 0.025.
+- Cache validity: label-only cache unsafe FP 0.270; strict cache unsafe FP
+  0.025 while reducing test cost versus no cache.
+- Noise stress: crisp one-shot guards degrade under noise; repeated and
+  abstaining guards reduce unsafe assertions at higher cost or lower coverage.
+- Visibility ladder: full noisy hidden-state visibility solves the synthetic
+  task, honestly narrowing the EATL claim.
+- Final manuscript: `paper/main.tex`, visible `v3 final full-scale` note.
+- Final PDF: `C:/Users/wangz/Downloads/28.pdf`.
+- Final PDF pages: 28.
+- Final PDF size: 324,184 bytes.
+- Final PDF SHA256:
+  `5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E`.
+- Local `paper/main.pdf` is absent after final export.
+- Build status: `data/build_status.json` reports complete, copied true,
+  removed local PDF true.
 
-Historical failures:
-- OpenAlex returned HTTP 429 during the original literature run; Crossref/arXiv fallback recovered the matrix.
-- Original experiment first run failed with `KeyError`; witness construction was patched before v1.
-- Original build had overlapping pdflatex passes; recovered with a final sequential pass.
-- Initial GitHub push emitted a non-fatal large-file warning for `results/episode_results.csv` because it is 74.23 MB.
+Commands run in v3:
 
-Recovery / hardening steps:
-- Added v2 test-cost stress and narrowed the EATL claim to cheap/safe, task-justified probes.
-- Added standard hardening docs: attack log, version log, hostile reviewer response, rigor checklist, reproducibility checklist, and readiness decision.
-- Added `scripts/build_pdf.ps1` and `.gitignore` rule for `paper/main.pdf`.
-- Rebuilt the canonical PDF and removed the tracked local PDF.
+- `python experiments/full_scale_affordance_tests.py`
+- `python scripts/render_full_scale_figures.py`
+- `python scripts/write_full_scale_appendix_tables.py`
+- Local LaTeX compile checks with `pdflatex/bibtex/pdflatex/pdflatex`
+- `powershell -ExecutionPolicy Bypass -File scripts/build_pdf.ps1`
+- PDF verification with `pdfinfo`, `pdftotext`, `Get-FileHash`, and log scans
+
+Final validation:
+
+- `Downloads/28.pdf` exists.
+- Page count is 28.
+- PDF text contains `v3 final full-scale`, `192,000`, `4,977,600`, and
+  `risk-aware EATL`.
+- `paper/main.log` has no overfull boxes, undefined references, or undefined
+  citations in the final build.
+- `paper/main.pdf` was removed by the build script.
 
 Next:
-- Commit and push the v2 hardening update.
+
+- Commit and push v3 full-scale hardening.
