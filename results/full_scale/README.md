@@ -37,3 +37,12 @@ Primary outputs:
 - `visibility_summary.csv`
 - `demand_embodiment_summary.csv`
 - `failure_gallery.csv`
+
+Final PDF validation:
+
+- Downloads artifact: `C:/Users/wangz/Downloads/28.pdf`.
+- Pages: 28.
+- Size: 324,221 bytes.
+- SHA256: `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`.
+- VLA link-box audit: green citation boxes and red internal-reference boxes
+  are present with one-point borders; no cyan boxes are present.

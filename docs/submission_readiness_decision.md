@@ -30,3 +30,7 @@ robotics main track that requires hardware or high-fidelity simulation.
 The paper is final under the current batch standard as a full-scale synthetic
 mechanism paper.  It should be positioned as executable semantics and benchmark
 evidence, not as a deployable robot system.
+
+The 2026-06-20 visual-hardening pass preserves that scope and rebuilds the
+canonical Downloads PDF with explicit VLA-style green citation boxes, red
+internal-reference boxes, and no cyan URL boxes.

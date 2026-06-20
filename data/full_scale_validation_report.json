@@ -4,8 +4,8 @@
   "status": "complete",
   "final_pdf": "C:/Users/wangz/Downloads/28.pdf",
   "pages": 28,
-  "bytes": 324184,
-  "sha256": "5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E",
+  "bytes": 324221,
+  "sha256": "812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1",
   "local_paper_pdf_present": false,
   "main_cases": 192000,
   "main_method_decisions": 1920000,
@@ -21,5 +21,30 @@
     "192,000",
     "4,977,600",
     "risk-aware EATL"
-  ]
+  ],
+  "vla_link_box_visual_hardening": {
+    "date": "2026-06-20",
+    "role_model_pdf": "C:/Users/wangz/Downloads/certified-tailguard-vla-iclr-submission.pdf",
+    "link_pages": [
+      [2, 29],
+      [3, 28],
+      [5, 2],
+      [6, 1],
+      [7, 1],
+      [8, 1],
+      [9, 4],
+      [11, 2],
+      [17, 1]
+    ],
+    "annotation_colors": {
+      "green": 57,
+      "red": 12,
+      "cyan": 0
+    },
+    "border_widths": [
+      "0 0 1"
+    ],
+    "rendered_pages": [2, 3, 5, 6, 7, 8, 9, 11, 17],
+    "visual_audit": "Rendered affected pages were inspected; green citation boxes and red internal-reference boxes are crisp and aligned, and no cyan boxes are present."
+  }
 }

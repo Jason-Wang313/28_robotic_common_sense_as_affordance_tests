@@ -1,6 +1,7 @@
 # Child Status: Paper 28
 
-Stage: v3 final full-scale complete, exported, verified, ready to commit/push
+Stage: v3 final full-scale complete; VLA link-box hardening exported and
+verified; ready to commit/push
 
 Current facts:
 
@@ -27,9 +28,11 @@ Current facts:
 - Final manuscript: `paper/main.tex`, visible `v3 final full-scale` note.
 - Final PDF: `C:/Users/wangz/Downloads/28.pdf`.
 - Final PDF pages: 28.
-- Final PDF size: 324,184 bytes.
+- Final PDF size: 324,221 bytes.
 - Final PDF SHA256:
-  `5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E`.
+  `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`.
+- Final PDF link boxes: green citation boxes and red internal-reference boxes
+  match the VLA role-model policy; no cyan URL boxes were found.
 - Local `paper/main.pdf` is absent after final export.
 - Build status: `data/build_status.json` reports complete, copied true,
   removed local PDF true.
@@ -42,6 +45,8 @@ Commands run in v3:
 - Local LaTeX compile checks with `pdflatex/bibtex/pdflatex/pdflatex`
 - `powershell -ExecutionPolicy Bypass -File scripts/build_pdf.ps1`
 - PDF verification with `pdfinfo`, `pdftotext`, `Get-FileHash`, and log scans
+- VLA link-box verification with pypdf annotation inventory and rendered-page
+  visual inspection
 
 Final validation:
 
@@ -49,6 +54,8 @@ Final validation:
 - Page count is 28.
 - PDF text contains `v3 final full-scale`, `192,000`, `4,977,600`, and
   `risk-aware EATL`.
+- Link annotation inventory is green = 57, red = 12, cyan = 0, with one-point
+  borders on all 69 link annotations.
 - `paper/main.log` has no overfull boxes, undefined references, or undefined
   citations in the final build.
 - `paper/main.pdf` was removed by the build script.

@@ -17,8 +17,12 @@
 - [x] Local `paper/main.pdf` removed after final build.
 - [x] Final PDF page count verified with `pdfinfo`: 28.
 - [x] Final PDF hash recorded.
+- [x] VLA-style link boxes verified with pypdf inventory and rendered-page
+  visual inspection.
 
 Exact final artifact:
 
 - Path: `C:/Users/wangz/Downloads/28.pdf`
-- SHA256: `5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E`
+- Size: 324,221 bytes
+- SHA256: `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`
+- Link boxes: green citations, red internal links, no cyan boxes.
