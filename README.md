@@ -75,8 +75,10 @@ Final verified artifact:
 
 - Path: `C:/Users/wangz/Downloads/28.pdf`
 - Pages: 28
-- Size: 324,184 bytes
-- SHA256: `5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E`
+- Size: 324,221 bytes
+- SHA256: `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`
+- Link-box audit: VLA-style one-point boxes are explicit; citation links use
+  green boxes, internal links use red boxes, and no cyan URL boxes are present.
 
 ## Dependencies
 

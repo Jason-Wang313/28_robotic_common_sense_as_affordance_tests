@@ -6,6 +6,17 @@ This plan is the required pre-work gate for the v3 pass. No final PDF should be
 placed in Downloads until the paper has been rebuilt as a genuinely final
 25-page manuscript under the current batch standard.
 
+## 2026-06-20 Visual-Hardening Addendum
+
+The final v3 manuscript was rebuilt with the explicit VLA role-model hyperref
+policy for boxed links.  The Downloads artifact remains 28 pages and is now:
+
+- Path: `C:/Users/wangz/Downloads/28.pdf`
+- Size: 324,221 bytes
+- SHA256: `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`
+- Link-box inventory: green = 57, red = 12, cyan = 0, with one-point borders
+  on all 69 link annotations.
+
 ## Current Thesis
 
 Paper 28 argues that robotic common sense should be represented as executable

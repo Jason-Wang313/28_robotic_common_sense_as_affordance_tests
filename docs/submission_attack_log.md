@@ -1,6 +1,6 @@
 # Submission Attack Log
 
-Updated: 2026-06-15
+Updated: 2026-06-20
 
 ## v3 Attack Rounds
 
@@ -27,6 +27,10 @@ Updated: 2026-06-15
    export is `C:/Users/wangz/Downloads/28.pdf`; local `paper/main.pdf` removed.
 10. Page-depth attack: v2 was too short.  Response: final manuscript is 28 pages
     with real experiment content and appendices.
+11. Visual artifact attack: link highlights must match the VLA-v4 role-model
+    PDF instead of relying on implicit hyperref defaults.  Response: added the
+    explicit boxed-link policy, rebuilt the Downloads PDF, inventoried all link
+    annotations, and inspected rendered affected pages.
 
 ## v3 Outcome
 

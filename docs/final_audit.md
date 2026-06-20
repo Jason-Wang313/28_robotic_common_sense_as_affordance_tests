@@ -52,10 +52,10 @@
 
 14. Final PDF page count: 28.
 
-15. Final PDF size: 324,184 bytes.
+15. Final PDF size: 324,221 bytes.
 
 16. Final PDF SHA256:
-   `5FDC2D0242E633A9DFFC0D6738E3CD4C48CA0985D1AB24CACCC8221C0C3ED03E`.
+   `812D8C4A7C4DD1D105779F206D5D359A9C46CD22F647488DBE9A127B511562B1`.
 
 17. Build status: `data/build_status.json` reports `complete`, copied true, and
    removed local PDF true.
@@ -70,3 +70,7 @@
 
 21. Public GitHub repo:
    `https://github.com/Jason-Wang313/28_robotic_common_sense_as_affordance_tests`.
+
+22. VLA-style link-box audit: all 69 link annotations use one-point borders;
+    citation boxes are green, internal-reference boxes are red, no cyan boxes
+    are present, and rendered affected pages were visually inspected.
